@@ -74,8 +74,9 @@ jobs:
       - name: Bump Version and Push
         run: |
           pnpm bumpp package.json \
+            --yes \
             --commit "release: v%s" \
             --tag "v%s" \
             --push \
-            --yes \
+            --no-meta \
             --${{ steps.bump-type.outputs.TYPE }} 
