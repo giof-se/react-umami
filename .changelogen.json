@@ -1,0 +1,37 @@
+{
+  "types": {
+    "feat": {
+      "title": "🚀 Features"
+    },
+    "fix": {
+      "title": "🐛 Bug Fixes"
+    },
+    "perf": {
+      "title": "⚡ Performance Improvements"
+    },
+    "refactor": {
+      "title": "♻️ Refactors"
+    },
+    "docs": {
+      "title": "📝 Documentation"
+    },
+    "build": {
+      "title": "🛠️ Build System"
+    },
+    "ci": {
+      "title": "🔄 CI"
+    },
+    "test": {
+      "title": "✅ Tests"
+    },
+    "chore": {
+      "title": "🧹 Chores"
+    },
+    "style": {
+      "title": "💄 Styling"
+    }
+  },
+  "scopeMap": {},
+  "github": "giof-se/umami",
+  "gitlab": false
+}

@@ -2,18 +2,45 @@
   "name": "@giof-se/umami",
   "version": "1.1.4",
   "description": "Reusable Umami Analytics component for Next.js",
+  "keywords": ["umami", "analytics", "next.js", "react"],
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts",
-    "prepublishOnly": "pnpm build"
+    "fmt": "biome format --write .",
+    "lint": "biome check src tests *.json",
+    "lint:write": "biome check --write src tests *.json",
+    "prepare-release": "pnpm test && pnpm build && changelogen --output CHANGELOG.md --release",
+    "prepublishOnly": "pnpm build",
+    "release": "pnpm validate && bumpp package.json --commit \"release: v%s\" --tag \"v%s\" && git push --follow-tags",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "validate": "pnpm lint && pnpm typecheck && pnpm test",
+    "changelog": "changelogen --output CHANGELOG.md",
+    "changelog:release": "changelogen --output CHANGELOG.md --release",
+    "version:patch": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --patch",
+    "version:minor": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --minor",
+    "version:major": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --major"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.6.0",
+    "@testing-library/react": "^15.0.0",
     "@total-typescript/tsconfig": "^1.0.4",
     "@types/node": "^22.13.5",
     "@types/react": "^19.0.10",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.3.1",
+    "bumpp": "^9.4.0",
+    "changelogen": "^0.5.5",
+    "happy-dom": "^14.0.0",
+    "jsdom": "^24.0.0",
     "tsup": "^8.3.6",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^1.3.1"
   },
   "peerDependencies": {
     "next": "^13.0.0",
@@ -21,5 +48,9 @@
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": ["esbuild"],
+    "onlyBuiltDependencies": ["@biomejs/biome"]
   }
 }

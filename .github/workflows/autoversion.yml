@@ -1,0 +1,81 @@
+name: Autoversion and Changelog
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  autoversion:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'release:')"
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@giof-se"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Set PNPM Store Path
+        shell: bash
+        run: |
+          mkdir -p ~/.pnpm-store
+          echo "STORE_PATH=$HOME/.pnpm-store" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Dependencies
+        run: pnpm install --store-dir=$STORE_PATH
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Git User
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Run Validation
+        run: pnpm validate
+
+      - name: Determine Version Bump Type
+        id: bump-type
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ $COMMIT_MSG == *"BREAKING CHANGE"* || $COMMIT_MSG == *"major"* ]]; then
+            echo "TYPE=major" >> $GITHUB_OUTPUT
+          elif [[ $COMMIT_MSG == *"feat"* || $COMMIT_MSG == *"feature"* || $COMMIT_MSG == *"minor"* ]]; then
+            echo "TYPE=minor" >> $GITHUB_OUTPUT
+          else
+            echo "TYPE=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate Changelog
+        run: pnpm changelogen --output CHANGELOG.md --release
+
+      - name: Bump Version and Push
+        run: |
+          pnpm bumpp package.json \
+            --commit "release: v%s" \
+            --tag "v%s" \
+            --push \
+            --${{ steps.bump-type.outputs.TYPE }} 

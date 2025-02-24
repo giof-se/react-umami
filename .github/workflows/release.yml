@@ -1,0 +1,100 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release type (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: 'Custom version (will override release type if provided)'
+        required: false
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+        
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+      
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Run tests
+        run: pnpm test
+        
+      - name: Build
+        run: pnpm build
+        
+      - name: Install changelogen
+        run: pnpm add -g changelogen
+      
+      - name: Generate changelog
+        run: pnpm changelogen --output CHANGELOG.md --release
+        
+      - name: Version bump (standard)
+        if: ${{ !inputs.custom_version }}
+        run: |
+          npm version ${{ inputs.version }} -m "release: v%s"
+          export NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+        
+      - name: Version bump (custom)
+        if: ${{ inputs.custom_version }}
+        run: |
+          npm version ${{ inputs.custom_version }} -m "release: v%s"
+          export NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          
+      - name: Push changes
+        run: |
+          git push
+          git push --tags
+          
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }} 

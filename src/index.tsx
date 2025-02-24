@@ -1,3 +1,3 @@
 // src/index.ts
 
-export * from "./UmamiAnalytics";
+export * from './UmamiAnalytics';
