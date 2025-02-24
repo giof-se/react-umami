@@ -26,10 +26,11 @@ jobs:
           version: 8
           run_install: false
 
-      - name: Get pnpm store directory
+      - name: Set PNPM Store Path
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          mkdir -p ~/.pnpm-store
+          echo "STORE_PATH=$HOME/.pnpm-store" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
         uses: actions/cache@v4
@@ -49,7 +50,7 @@ jobs:
           fi
 
       - name: Install Dependencies
-        run: pnpm install
+        run: pnpm install --store-dir=$STORE_PATH
 
       - name: Build Package
         run: pnpm run build
@@ -58,7 +59,6 @@ jobs:
         run: pnpm publish --no-git-checks --access restricted
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
