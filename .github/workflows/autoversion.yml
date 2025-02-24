@@ -73,10 +73,17 @@ jobs:
 
       - name: Bump Version and Push
         run: |
-          pnpm bumpp package.json \
-            --yes \
-            --commit "release: v%s" \
-            --tag "v%s" \
-            --push \
-            --no-meta \
-            --${{ steps.bump-type.outputs.TYPE }} 
+          # Get the current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          
+          # Bump the version based on the commit type
+          pnpm version ${{ steps.bump-type.outputs.TYPE }} --no-git-tag-version
+
+          # Get the new version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          
+          # Commit, tag and push
+          git add package.json CHANGELOG.md
+          git commit -m "release: v${NEW_VERSION}"
+          git tag "v${NEW_VERSION}"
+          git push && git push --tags 
