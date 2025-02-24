@@ -69,7 +69,7 @@ jobs:
           fi
 
       - name: Generate Changelog
-        run: pnpm changelogen --output CHANGELOG.md --release
+        run: pnpm changelogen --output CHANGELOG.md
 
       - name: Bump Version and Push
         run: |
