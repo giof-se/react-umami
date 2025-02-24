@@ -43,10 +43,10 @@ jobs:
           version: 8
           run_install: false
       
-      - name: Get pnpm store directory
+      - name: Set PNPM Store Path
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          echo "STORE_PATH=$HOME/.pnpm-store" >> $GITHUB_ENV
       
       - name: Setup pnpm cache
         uses: actions/cache@v4
@@ -57,7 +57,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --store-dir=${{ env.STORE_PATH }}
         
       - name: Run tests
         run: pnpm test

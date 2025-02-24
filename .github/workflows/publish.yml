@@ -29,7 +29,6 @@ jobs:
       - name: Set PNPM Store Path
         shell: bash
         run: |
-          mkdir -p ~/.pnpm-store
           echo "STORE_PATH=$HOME/.pnpm-store" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
@@ -50,7 +49,7 @@ jobs:
           fi
 
       - name: Install Dependencies
-        run: pnpm install --store-dir=$STORE_PATH
+        run: pnpm install --store-dir=${{ env.STORE_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
 
