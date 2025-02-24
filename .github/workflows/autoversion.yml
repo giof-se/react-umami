@@ -77,4 +77,5 @@ jobs:
             --commit "release: v%s" \
             --tag "v%s" \
             --push \
+            --yes \
             --${{ steps.bump-type.outputs.TYPE }} 
