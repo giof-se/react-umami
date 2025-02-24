@@ -3,7 +3,7 @@ name: Publish Package
 on:
   push:
     tags:
-      - "v*"
+      - "v*" # Runs when a new version tag (e.g., v1.0.0) is pushed
 
 jobs:
   publish:
@@ -19,6 +19,9 @@ jobs:
           node-version: 18
           registry-url: "https://npm.pkg.github.com"
           scope: "@giof-se"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Configure .npmrc
         run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
