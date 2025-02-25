@@ -70,14 +70,10 @@ jobs:
             echo "should_publish=false" >> $GITHUB_OUTPUT
           fi
 
-  publish:
+  # Direct publish for push and workflow_dispatch events
+  publish-direct:
     runs-on: ubuntu-latest
-    # Run this job if it's a direct tag push, manual workflow dispatch, or a successful autoversion run with a recent tag
-    needs: [check-for-tag]
-    if: >
-      github.event_name == 'push' || 
-      github.event_name == 'workflow_dispatch' || 
-      (github.event_name == 'workflow_run' && needs.check-for-tag.outputs.should_publish == 'true')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
       packages: write
@@ -88,23 +84,158 @@ jobs:
         with:
           fetch-depth: 0
           # For workflow_dispatch, check out the specific tag
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.event_name == 'workflow_run' && needs.check-for-tag.outputs.latest_tag || github.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref }}
 
       - name: Debug Tag Information
         run: |
           echo "GITHUB_REF: $GITHUB_REF"
           echo "Event name: ${{ github.event_name }}"
-          if [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "Using tag from workflow_run: ${{ needs.check-for-tag.outputs.latest_tag }}"
-            echo "Tag version: ${TAG_VERSION#v}"
-            TAG_VERSION="${{ needs.check-for-tag.outputs.latest_tag }}"
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "Using tag from workflow_dispatch: ${{ inputs.version }}"
             TAG_VERSION="${{ inputs.version }}"
           else
             echo "Using tag from push: ${GITHUB_REF#refs/tags/}"
             TAG_VERSION="${GITHUB_REF#refs/tags/}"
           fi
+          echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+          git tag -l
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@giof-se"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Set PNPM Store Path
+        shell: bash
+        run: |
+          echo "STORE_PATH=$HOME/.pnpm-store" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Validate package version matches tag
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION_WITHOUT_V="${TAG_VERSION#v}"
+          
+          echo "Package.json version: $PKG_VERSION"
+          echo "Tag version (without v): $TAG_VERSION_WITHOUT_V"
+          
+          if [ "$PKG_VERSION" != "$TAG_VERSION_WITHOUT_V" ]; then
+            echo "::error::Package version ($PKG_VERSION) does not match tag version ($TAG_VERSION_WITHOUT_V)"
+            exit 1
+          fi
+          
+          echo "✅ Version validation successful: $TAG_VERSION"
+
+      - name: Install Dependencies
+        run: pnpm install --store-dir=${{ env.STORE_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Package
+        run: pnpm run build
+
+      - name: Setup Git User
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Extract tag version
+        id: tag_version
+        run: echo "TAG_VERSION=${TAG_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Extract Release Notes
+        run: |
+          # Extract the current version's release notes from CHANGELOG.md
+          VERSION="${TAG_VERSION}"
+          VERSION_WITHOUT_V="${VERSION#v}"
+          echo "Extracting release notes for version $VERSION_WITHOUT_V"
+          
+          # Create a temporary file with just the current version's release notes
+          awk -v version="$VERSION_WITHOUT_V" '
+            BEGIN { inVersion = 0; }
+            $0 ~ "^## v"version {inVersion = 1; next;}
+            $0 ~ "^## v" && inVersion {exit;}
+            inVersion {print;}
+          ' CHANGELOG.md > release_notes.md
+          
+          # Check if we found any release notes
+          if [ ! -s release_notes.md ]; then
+            echo "No specific release notes found for $VERSION_WITHOUT_V, using general notes"
+            echo "Release $VERSION" > release_notes.md
+            echo "" >> release_notes.md
+            echo "See [CHANGELOG.md](https://github.com/giof-se/umami/blob/main/CHANGELOG.md) for details." >> release_notes.md
+          fi
+          
+          # Display the content for debugging
+          echo "=== Release Notes Content ==="
+          cat release_notes.md
+          echo "==========================="
+
+      - name: Publish Package
+        run: |
+          echo "Publishing package version $(node -p "require('./package.json').version")"
+          # Create .npmrc using the auto-generated GitHub token
+          cat > .npmrc << EOF
+          @giof-se:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${{ github.token }}
+          EOF
+          cat .npmrc
+          pnpm publish --no-git-checks --access restricted
+        env:
+          # Use the auto-generated token for authentication
+          NODE_AUTH_TOKEN: ${{ github.token }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: false
+          body_path: "release_notes.md"
+          prerelease: false
+          draft: false
+          make_latest: true
+          name: "Release ${{ steps.tag_version.outputs.TAG_VERSION }}"
+          tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          
+  # Publish for workflow_run events
+  publish-from-run:
+    runs-on: ubuntu-latest
+    needs: [check-for-tag]
+    if: github.event_name == 'workflow_run' && needs.check-for-tag.outputs.should_publish == 'true'
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.check-for-tag.outputs.latest_tag }}
+
+      - name: Debug Tag Information
+        run: |
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Using tag from workflow_run: ${{ needs.check-for-tag.outputs.latest_tag }}"
+          TAG_VERSION="${{ needs.check-for-tag.outputs.latest_tag }}"
           echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
           git tag -l
 
