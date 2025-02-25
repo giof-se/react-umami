@@ -41,9 +41,20 @@ jobs:
             exit 1
           fi
           
-          # Now safely extract the tag
-          TAG=$(echo $TAGS_RESPONSE | jq -r '.[0].name')
-          echo "Latest tag is: $TAG"
+          # List all tags for debugging
+          echo "All available tags:"
+          echo "$TAGS_RESPONSE" | jq -r '.[].name'
+          
+          # Find the latest semantic version tag (excluding test tags like v999.999.999)
+          echo "Finding latest semantic version tag..."
+          TAG=$(echo "$TAGS_RESPONSE" | jq -r '.[].name' | grep -v 'v999.999.999' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+          
+          if [ -z "$TAG" ]; then
+            echo "ERROR: No valid semantic version tags found"
+            exit 1
+          fi
+          
+          echo "Latest semantic version tag is: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           
           # TEMPORARILY REMOVING TIME CHECK - ALWAYS CONSIDER TAG RECENT
