@@ -155,14 +155,16 @@ Example commit messages:
 
 ## Improved CI/CD Pipeline
 
-The repository now features an improved CI/CD pipeline with automatic versioning and publishing:
+The CI/CD pipeline follows these steps:
 
-1. When changes are pushed to the main branch, the Autoversion workflow runs
+1. The Autoversion workflow runs when changes are pushed to the main branch
 2. It automatically increments the version based on commit messages
-3. The Trigger-Publish workflow then picks up the new tag
-4. Finally, the Publish workflow creates a GitHub release and publishes the package
+3. The Publish workflow creates a GitHub release and publishes the package
 
-> Note: The pipeline has been enhanced to ensure reliable tag detection and release creation, with improved logic for handling version tags.
+The workflow has been enhanced to handle different trigger methods:
+- Direct tag pushes
+- Manual workflow dispatch with version input
+- Automated workflow runs from the autoversion workflow
 
 ## 📄 License
 
