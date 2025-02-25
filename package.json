@@ -2,19 +2,11 @@
   "name": "@giof-se/umami",
   "version": "1.1.5",
   "description": "Reusable Umami Analytics component for Next.js",
-  "keywords": [
-    "umami",
-    "analytics",
-    "next.js",
-    "react"
-  ],
+  "keywords": ["umami", "analytics", "next.js", "react"],
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts",
     "fmt": "biome format --write .",
@@ -58,11 +50,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "pnpm": {
-    "ignoredBuiltDependencies": [
-      "esbuild"
-    ],
-    "onlyBuiltDependencies": [
-      "@biomejs/biome"
-    ]
+    "ignoredBuiltDependencies": ["esbuild"],
+    "onlyBuiltDependencies": ["@biomejs/biome"]
   }
 }
