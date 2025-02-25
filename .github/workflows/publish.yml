@@ -8,10 +8,21 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug Tag Information
+        run: |
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "Tag version: ${GITHUB_REF#refs/tags/v}"
+          git tag -l
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -43,28 +54,49 @@ jobs:
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          
+          echo "Package.json version: $PKG_VERSION"
+          echo "Tag version: $TAG_VERSION"
+          
           if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
             echo "::error::Package version ($PKG_VERSION) does not match tag version ($TAG_VERSION)"
             exit 1
           fi
+          
+          echo "✅ Version validation successful: $TAG_VERSION"
 
       - name: Install Dependencies
         run: pnpm install --store-dir=${{ env.STORE_PATH }}
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Package
         run: pnpm run build
 
+      - name: Setup Git User
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
       - name: Publish Package
-        run: pnpm publish --no-git-checks --access restricted
+        run: |
+          echo "Publishing package version $(node -p "require('./package.json').version")"
+          # Create .npmrc using the auto-generated GitHub token
+          cat > .npmrc << EOF
+          @giof-se:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${{ github.token }}
+          EOF
+          cat .npmrc
+          pnpm publish --no-git-checks --access restricted
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Use the auto-generated token for authentication
+          NODE_AUTH_TOKEN: ${{ github.token }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
