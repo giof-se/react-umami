@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.20
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.19...v1.1.20)
+
+### 🩹 Fixes
+
+- Improve publish workflow to support workflow_run triggers ([7f692c0](https://github.com/giof-se/umami/commit/7f692c0))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.18
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.17...v1.1.18)
