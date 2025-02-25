@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.34
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.33...v1.1.34)
+
+### 🩹 Fixes
+
+- Split publish workflow into direct and workflow_run paths ([fe11177](https://github.com/giof-se/umami/commit/fe11177))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.32
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.31...v1.1.32)
