@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.22
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.21...v1.1.22)
+
+### 🩹 Fixes
+
+- Add trigger-publish workflow to bridge autoversion and publish workflows ([51cd28e](https://github.com/giof-se/umami/commit/51cd28e))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.20
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.19...v1.1.20)
