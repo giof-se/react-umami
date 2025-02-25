@@ -18,30 +18,75 @@ jobs:
       - name: Get latest tag
         id: get_tag
         run: |
-          # Get the latest tag from the GitHub API
-          TAG=$(curl -s https://api.github.com/repos/${{ github.repository }}/tags | jq -r '.[0].name')
+          # Get the latest tag from the GitHub API with debugging
+          echo "Fetching tags from GitHub API..."
+          TAGS_RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/tags)
+          
+          # Debug response
+          echo "API Response length: $(echo $TAGS_RESPONSE | wc -c) bytes"
+          echo "Response starts with: $(echo $TAGS_RESPONSE | head -c 100)..."
+          
+          # Check if response is valid JSON array
+          IS_ARRAY=$(echo $TAGS_RESPONSE | jq 'if type=="array" then true else false end')
+          if [ "$IS_ARRAY" != "true" ]; then
+            echo "ERROR: GitHub API didn't return an array of tags"
+            echo "Full response: $TAGS_RESPONSE"
+            exit 1
+          fi
+          
+          # Get array length
+          ARRAY_LENGTH=$(echo $TAGS_RESPONSE | jq 'length')
+          if [ "$ARRAY_LENGTH" -eq "0" ]; then
+            echo "ERROR: No tags found in repository"
+            exit 1
+          fi
+          
+          # Now safely extract the tag
+          TAG=$(echo $TAGS_RESPONSE | jq -r '.[0].name')
           echo "Latest tag is: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           
           # Get the tag creation timestamp to check if it's recent
-          TAG_INFO=$(curl -s https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG)
+          echo "Getting tag reference data..."
+          TAG_INFO=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG)
+          
+          if [ "$(echo $TAG_INFO | jq 'has("object")')" != "true" ]; then
+            echo "ERROR: Couldn't retrieve tag info"
+            echo "Response: $TAG_INFO"
+            exit 1
+          fi
+          
           TAG_SHA=$(echo "$TAG_INFO" | jq -r '.object.sha')
+          echo "Tag SHA: $TAG_SHA"
           
           # If this is a tag object (annotated tag), get the commit it points to
           TAG_TYPE=$(echo "$TAG_INFO" | jq -r '.object.type')
+          echo "Tag type: $TAG_TYPE"
           if [ "$TAG_TYPE" = "tag" ]; then
-            TAG_OBJECT=$(curl -s https://api.github.com/repos/${{ github.repository }}/git/tags/$TAG_SHA)
+            echo "Getting annotated tag object..."
+            TAG_OBJECT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/git/tags/$TAG_SHA)
             TAG_SHA=$(echo "$TAG_OBJECT" | jq -r '.object.sha')
+            echo "Updated SHA from annotated tag: $TAG_SHA"
           fi
           
           # Get commit timestamp
-          COMMIT_INFO=$(curl -s https://api.github.com/repos/${{ github.repository }}/commits/$TAG_SHA)
+          echo "Getting commit info..."
+          COMMIT_INFO=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/commits/$TAG_SHA)
+          
+          if [ "$(echo $COMMIT_INFO | jq 'has("commit")')" != "true" ]; then
+            echo "ERROR: Couldn't retrieve commit info"
+            echo "Response: $COMMIT_INFO"
+            exit 1
+          fi
+          
           COMMIT_TIME=$(echo "$COMMIT_INFO" | jq -r '.commit.committer.date')
+          echo "Commit time: $COMMIT_TIME"
           
           # Calculate time difference in seconds
           COMMIT_TIME_SEC=$(date -d "$COMMIT_TIME" +%s)
           CURRENT_TIME_SEC=$(date +%s)
           DIFF_SEC=$((CURRENT_TIME_SEC - COMMIT_TIME_SEC))
+          echo "Time difference: $DIFF_SEC seconds"
           
           # If the tag was created in the last 15 minutes, we consider it recent
           if [ $DIFF_SEC -lt 900 ]; then
