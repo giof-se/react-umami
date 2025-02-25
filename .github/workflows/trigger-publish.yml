@@ -1,0 +1,82 @@
+name: Trigger Publish
+
+on:
+  workflow_run:
+    workflows: ["Autoversion and Changelog"]
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  trigger-publish:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # Get the latest tag from the GitHub API
+          TAG=$(curl -s https://api.github.com/repos/${{ github.repository }}/tags | jq -r '.[0].name')
+          echo "Latest tag is: $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          
+          # Get the tag creation timestamp to check if it's recent
+          TAG_INFO=$(curl -s https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG)
+          TAG_SHA=$(echo "$TAG_INFO" | jq -r '.object.sha')
+          
+          # If this is a tag object (annotated tag), get the commit it points to
+          TAG_TYPE=$(echo "$TAG_INFO" | jq -r '.object.type')
+          if [ "$TAG_TYPE" = "tag" ]; then
+            TAG_OBJECT=$(curl -s https://api.github.com/repos/${{ github.repository }}/git/tags/$TAG_SHA)
+            TAG_SHA=$(echo "$TAG_OBJECT" | jq -r '.object.sha')
+          fi
+          
+          # Get commit timestamp
+          COMMIT_INFO=$(curl -s https://api.github.com/repos/${{ github.repository }}/commits/$TAG_SHA)
+          COMMIT_TIME=$(echo "$COMMIT_INFO" | jq -r '.commit.committer.date')
+          
+          # Calculate time difference in seconds
+          COMMIT_TIME_SEC=$(date -d "$COMMIT_TIME" +%s)
+          CURRENT_TIME_SEC=$(date +%s)
+          DIFF_SEC=$((CURRENT_TIME_SEC - COMMIT_TIME_SEC))
+          
+          # If the tag was created in the last 15 minutes, we consider it recent
+          if [ $DIFF_SEC -lt 900 ]; then
+            echo "Tag was created recently (within last 15 minutes)"
+            echo "is_recent=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag is older than 15 minutes"
+            echo "is_recent=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Manual workflow dispatch
+        if: steps.get_tag.outputs.is_recent == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = "${{ steps.get_tag.outputs.tag }}";
+            
+            console.log(`Triggering publish workflow for tag ${tag}`);
+            
+            try {
+              const result = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'publish.yml',
+                ref: 'main',
+                inputs: {
+                  version: tag
+                }
+              });
+              
+              console.log(`Workflow dispatch result: ${JSON.stringify(result)}`);
+              console.log(`✅ Successfully triggered publish workflow for ${tag}`);
+            } catch (error) {
+              console.error(`Error triggering workflow: ${error.message}`);
+              console.error(JSON.stringify(error));
+              throw error;
+            } 
