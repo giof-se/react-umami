@@ -162,7 +162,7 @@ The repository now features an improved CI/CD pipeline with automatic versioning
 3. The Trigger-Publish workflow then picks up the new tag
 4. Finally, the Publish workflow creates a GitHub release and publishes the package
 
-> Note: The pipeline has been enhanced to ensure reliable tag detection and release creation.
+> Note: The pipeline has been enhanced to ensure reliable tag detection and release creation, with improved logic for handling version tags.
 
 ## 📄 License
 
