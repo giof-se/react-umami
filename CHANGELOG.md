@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.14
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.12...v1.1.14)
+
+### 🩹 Fixes
+
+- Add write permissions to autoversion workflow ([07dfd57](https://github.com/giof-se/umami/commit/07dfd57))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.11
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.10...v1.1.11)
