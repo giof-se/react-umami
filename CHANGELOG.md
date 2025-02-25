@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.18
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.17...v1.1.18)
+
+### 🩹 Fixes
+
+- Use GitHub API for tag creation in autoversion workflow ([aa0a7c7](https://github.com/giof-se/umami/commit/aa0a7c7))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.16
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.15...v1.1.16)

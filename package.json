@@ -1,6 +1,6 @@
 {
   "name": "@giof-se/umami",
-  "version": "1.1.17",
+  "version": "1.1.18",
   "description": "Reusable Umami Analytics component for Next.js",
   "keywords": ["umami", "analytics", "next.js", "react"],
   "license": "MIT",
