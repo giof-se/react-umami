@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.28
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.27...v1.1.28)
+
+### 🩹 Fixes
+
+- Improve tag selection in trigger-publish workflow ([5f7ec72](https://github.com/giof-se/umami/commit/5f7ec72))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.26
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.25...v1.1.26)
