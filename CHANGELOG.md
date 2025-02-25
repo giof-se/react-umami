@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.32
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.31...v1.1.32)
+
+### 🩹 Fixes
+
+- Correct copyright attribution in README ([d63b4e7](https://github.com/giof-se/umami/commit/d63b4e7))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.30
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.29...v1.1.30)
