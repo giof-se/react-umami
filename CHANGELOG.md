@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v1.1.38
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.37...v1.1.38)
+
 ## v1.1.36
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.35...v1.1.36)
