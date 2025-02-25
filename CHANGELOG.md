@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.16
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.15...v1.1.16)
+
+### 🩹 Fixes
+
+- Improve tag pushing in autoversion workflow ([5b8741e](https://github.com/giof-se/umami/commit/5b8741e))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.14
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.12...v1.1.14)
