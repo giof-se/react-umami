@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.24
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.23...v1.1.24)
+
+### 🩹 Fixes
+
+- Improve error handling in trigger-publish workflow ([74fa72c](https://github.com/giof-se/umami/commit/74fa72c))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.22
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.21...v1.1.22)
