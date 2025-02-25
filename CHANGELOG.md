@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.11
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.10...v1.1.11)
+
+### 🩹 Fixes
+
+- Improve release notes extraction in GitHub Release ([b2ec216](https://github.com/giof-se/umami/commit/b2ec216))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.9
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.8...v1.1.9)
