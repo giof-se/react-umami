@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.36
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.35...v1.1.36)
+
+### 📖 Documentation
+
+- Update CI/CD pipeline information in README ([18517c8](https://github.com/giof-se/umami/commit/18517c8))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.34
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.33...v1.1.34)
