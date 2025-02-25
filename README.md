@@ -166,4 +166,4 @@ The repository now features an improved CI/CD pipeline with automatic versioning
 
 ## 📄 License
 
-MIT © [Johan Lindell](https://giof.se)
+MIT © [giof-se](https://github.com/giof-se)
