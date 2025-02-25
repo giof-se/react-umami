@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.26
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.25...v1.1.26)
+
+### 🩹 Fixes
+
+- Temporarily bypass time check in trigger-publish workflow ([3906495](https://github.com/giof-se/umami/commit/3906495))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.24
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.23...v1.1.24)
