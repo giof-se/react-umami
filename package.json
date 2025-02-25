@@ -32,7 +32,8 @@
     "changelog:release": "changelogen --output CHANGELOG.md --release",
     "version:patch": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --patch",
     "version:minor": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --minor",
-    "version:major": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --major"
+    "version:major": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --major",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "1.6.0",
@@ -45,7 +46,9 @@
     "bumpp": "^9.4.0",
     "changelogen": "^0.5.5",
     "happy-dom": "^14.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^24.0.0",
+    "lint-staged": "^15.4.3",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
     "vitest": "^1.3.1"
@@ -63,6 +66,15 @@
     ],
     "onlyBuiltDependencies": [
       "@biomejs/biome"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "biome format --write",
+      "biome check --apply"
+    ],
+    "*.{json,md}": [
+      "biome format --write"
     ]
   }
 }

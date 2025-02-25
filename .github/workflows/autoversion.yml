@@ -69,7 +69,14 @@ jobs:
           fi
 
       - name: Generate Changelog
-        run: pnpm changelogen --output CHANGELOG.md --release
+        run: |
+          # Generate the full changelog
+          pnpm changelogen --output CHANGELOG.md --release
+          
+          # Display the changelog content for debugging
+          echo "--- CHANGELOG.md Content ---"
+          cat CHANGELOG.md
+          echo "----------------------------"
 
       - name: Bump Version and Push
         run: |

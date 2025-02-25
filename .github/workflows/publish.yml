@@ -79,6 +79,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
+      - name: Extract tag version
+        id: tag_version
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
       - name: Publish Package
         run: |
           echo "Publishing package version $(node -p "require('./package.json').version")"
@@ -96,10 +100,12 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: false
-          body_path: CHANGELOG.md
+          generate_release_notes: true
+          body_path: ""
           prerelease: false
           draft: false
           make_latest: true
+          name: "Release ${{ steps.tag_version.outputs.TAG_VERSION }}"
+          tag_name: ${{ steps.tag_version.outputs.TAG_VERSION }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
