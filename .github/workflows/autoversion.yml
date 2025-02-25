@@ -22,6 +22,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
+      - name: Debug Environment Variables
+        run: |
+          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "GITHUB_ACTOR: $GITHUB_ACTOR"
+          echo "GITHUB_TOKEN permissions:"
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/$GITHUB_REPOSITORY | jq '.permissions'
+
       - name: Debug Workflow Start
         run: |
           echo "Starting autoversion workflow"
@@ -81,6 +90,7 @@ jobs:
           else
             echo "TYPE=patch" >> $GITHUB_OUTPUT
           fi
+          echo "Determined version bump type: ${{ steps.bump-type.outputs.TYPE }}"
 
       - name: Generate Changelog
         run: |
@@ -92,9 +102,8 @@ jobs:
           cat CHANGELOG.md
           echo "----------------------------"
 
-      - name: Bump Version and Push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Determine New Version
+        id: new_version
         run: |
           # Get the current version
           CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -105,25 +114,79 @@ jobs:
           
           # Get the new version
           NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "New version: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version will be: $NEW_VERSION"
           
           # Validate version was actually bumped
           if [ "$CURRENT_VERSION" == "$NEW_VERSION" ]; then
             echo "::error::Version was not bumped. Current and new versions are the same: $CURRENT_VERSION"
             exit 1
           fi
-          
-          # Commit, tag and push
+
+      - name: Update package.json and CHANGELOG
+        run: |
           git add package.json CHANGELOG.md
-          git commit -m "release: v${NEW_VERSION}"
-          git tag "v${NEW_VERSION}"
-          
-          # Set the remote URL with token for authentication
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/giof-se/umami.git
-          
-          # Push with verbose output to debug any issues
-          echo "Pushing commit and tag v${NEW_VERSION}..."
-          git push -v origin HEAD:main
-          git push -v --tags origin
-          
-          echo "✅ Successfully pushed version v${NEW_VERSION}" 
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git commit -m "release: v${{ steps.new_version.outputs.NEW_VERSION }}"
+
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+      - name: Create Tag
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const version = "${{ steps.new_version.outputs.NEW_VERSION }}";
+            const tagName = `v${version}`;
+            
+            try {
+              console.log(`Creating tag ${tagName}...`);
+              
+              // Get the current commit SHA
+              const { data: refData } = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'heads/main',
+              });
+              const sha = refData.object.sha;
+              
+              console.log(`Current commit SHA: ${sha}`);
+              
+              // Create tag object
+              const { data: tagData } = await github.rest.git.createTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tagName,
+                message: `Release ${tagName}`,
+                object: sha,
+                type: 'commit',
+                tagger: {
+                  name: 'GitHub Actions',
+                  email: 'actions@github.com',
+                  date: new Date().toISOString(),
+                },
+              });
+              
+              console.log(`Tag object created: ${JSON.stringify(tagData)}`);
+              
+              // Create tag reference
+              const { data: refTagData } = await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tagName}`,
+                sha: tagData.sha,
+              });
+              
+              console.log(`Tag reference created: ${JSON.stringify(refTagData)}`);
+              
+              console.log(`✅ Successfully created tag ${tagName}`);
+            } catch (error) {
+              console.error(`Error creating tag: ${error.message}`);
+              console.error(JSON.stringify(error));
+              throw error;
+            } 
