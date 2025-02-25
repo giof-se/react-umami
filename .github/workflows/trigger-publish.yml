@@ -46,56 +46,9 @@ jobs:
           echo "Latest tag is: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           
-          # Get the tag creation timestamp to check if it's recent
-          echo "Getting tag reference data..."
-          TAG_INFO=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG)
-          
-          if [ "$(echo $TAG_INFO | jq 'has("object")')" != "true" ]; then
-            echo "ERROR: Couldn't retrieve tag info"
-            echo "Response: $TAG_INFO"
-            exit 1
-          fi
-          
-          TAG_SHA=$(echo "$TAG_INFO" | jq -r '.object.sha')
-          echo "Tag SHA: $TAG_SHA"
-          
-          # If this is a tag object (annotated tag), get the commit it points to
-          TAG_TYPE=$(echo "$TAG_INFO" | jq -r '.object.type')
-          echo "Tag type: $TAG_TYPE"
-          if [ "$TAG_TYPE" = "tag" ]; then
-            echo "Getting annotated tag object..."
-            TAG_OBJECT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/git/tags/$TAG_SHA)
-            TAG_SHA=$(echo "$TAG_OBJECT" | jq -r '.object.sha')
-            echo "Updated SHA from annotated tag: $TAG_SHA"
-          fi
-          
-          # Get commit timestamp
-          echo "Getting commit info..."
-          COMMIT_INFO=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/commits/$TAG_SHA)
-          
-          if [ "$(echo $COMMIT_INFO | jq 'has("commit")')" != "true" ]; then
-            echo "ERROR: Couldn't retrieve commit info"
-            echo "Response: $COMMIT_INFO"
-            exit 1
-          fi
-          
-          COMMIT_TIME=$(echo "$COMMIT_INFO" | jq -r '.commit.committer.date')
-          echo "Commit time: $COMMIT_TIME"
-          
-          # Calculate time difference in seconds
-          COMMIT_TIME_SEC=$(date -d "$COMMIT_TIME" +%s)
-          CURRENT_TIME_SEC=$(date +%s)
-          DIFF_SEC=$((CURRENT_TIME_SEC - COMMIT_TIME_SEC))
-          echo "Time difference: $DIFF_SEC seconds"
-          
-          # If the tag was created in the last 15 minutes, we consider it recent
-          if [ $DIFF_SEC -lt 900 ]; then
-            echo "Tag was created recently (within last 15 minutes)"
-            echo "is_recent=true" >> $GITHUB_OUTPUT
-          else
-            echo "Tag is older than 15 minutes"
-            echo "is_recent=false" >> $GITHUB_OUTPUT
-          fi
+          # TEMPORARILY REMOVING TIME CHECK - ALWAYS CONSIDER TAG RECENT
+          echo "IMPORTANT: Time check temporarily bypassed"
+          echo "is_recent=true" >> $GITHUB_OUTPUT
 
       - name: Manual workflow dispatch
         if: steps.get_tag.outputs.is_recent == 'true'

@@ -153,6 +153,15 @@ Example commit messages:
 - `fix: correct data attribute handling` (triggers patch version bump)
 - `feat: add XYZ with BREAKING CHANGE: requires new config` (triggers major version bump)
 
+## Improved CI/CD Pipeline
+
+The repository now features an improved CI/CD pipeline with automatic versioning and publishing:
+
+1. When changes are pushed to the main branch, the Autoversion workflow runs
+2. It automatically increments the version based on commit messages
+3. The Trigger-Publish workflow then picks up the new tag
+4. Finally, the Publish workflow creates a GitHub release and publishes the package
+
 ## 📄 License
 
 MIT © [Johan Lindell](https://giof.se)
