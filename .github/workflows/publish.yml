@@ -190,16 +190,16 @@ jobs:
       - name: Publish Package
         run: |
           echo "Publishing package version $(node -p "require('./package.json').version")"
-          # Create .npmrc using the auto-generated GitHub token
+          # Create .npmrc using the Personal Access Token
           cat > .npmrc << EOF
           @giof-se:registry=https://npm.pkg.github.com
-          //npm.pkg.github.com/:_authToken=${{ github.token }}
+          //npm.pkg.github.com/:_authToken=${{ secrets.PAT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           EOF
           cat .npmrc
           pnpm publish --no-git-checks --access restricted
         env:
-          # Use the auto-generated token for authentication
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          # Use the Personal Access Token for authentication
+          NODE_AUTH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -329,16 +329,16 @@ jobs:
       - name: Publish Package
         run: |
           echo "Publishing package version $(node -p "require('./package.json').version")"
-          # Create .npmrc using the auto-generated GitHub token
+          # Create .npmrc using the Personal Access Token
           cat > .npmrc << EOF
           @giof-se:registry=https://npm.pkg.github.com
-          //npm.pkg.github.com/:_authToken=${{ github.token }}
+          //npm.pkg.github.com/:_authToken=${{ secrets.PAT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           EOF
           cat .npmrc
           pnpm publish --no-git-checks --access restricted
         env:
-          # Use the auto-generated token for authentication
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          # Use the Personal Access Token for authentication
+          NODE_AUTH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
