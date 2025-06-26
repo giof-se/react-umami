@@ -11,7 +11,9 @@ describe('UmamiAnalytics', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...originalEnv };
+    process.env.UMAMI_WEBSITE_ID = undefined;
     process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID = undefined;
+    process.env.REACT_APP_UMAMI_WEBSITE_ID = undefined;
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     // Clear any existing scripts from previous tests
     document.head.innerHTML = '';
@@ -32,9 +34,7 @@ describe('UmamiAnalytics', () => {
   it('injects script with custom websiteId', () => {
     render(<UmamiAnalytics websiteId="test-id" />);
 
-    const scriptElement = document.querySelector(
-      'script[src="https://umami.marjala.com/script.js"]',
-    );
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
     expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
     expect(scriptElement?.getAttribute('async')).toBe('');
@@ -53,24 +53,43 @@ describe('UmamiAnalytics', () => {
     expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
   });
 
-  it('uses environment variable for websiteId if available', () => {
-    process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID = 'env-test-id';
+  it('uses UMAMI_WEBSITE_ID environment variable with highest priority', () => {
+    process.env.UMAMI_WEBSITE_ID = 'universal-id';
+    process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID = 'next-id';
+    process.env.REACT_APP_UMAMI_WEBSITE_ID = 'cra-id';
 
     render(<UmamiAnalytics />);
 
-    const scriptElement = document.querySelector(
-      'script[src="https://umami.marjala.com/script.js"]',
-    );
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
-    expect(scriptElement?.getAttribute('data-website-id')).toBe('env-test-id');
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('universal-id');
+  });
+
+  it('falls back to NEXT_PUBLIC_UMAMI_WEBSITE_ID when UMAMI_WEBSITE_ID is not set', () => {
+    process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID = 'next-id';
+    process.env.REACT_APP_UMAMI_WEBSITE_ID = 'cra-id';
+
+    render(<UmamiAnalytics />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('next-id');
+  });
+
+  it('falls back to REACT_APP_UMAMI_WEBSITE_ID when others are not set', () => {
+    process.env.REACT_APP_UMAMI_WEBSITE_ID = 'cra-id';
+
+    render(<UmamiAnalytics />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('cra-id');
   });
 
   it('adds domain restrictions when domains prop is provided', () => {
     render(<UmamiAnalytics websiteId="test-id" domains={['example.com', 'test.com']} />);
 
-    const scriptElement = document.querySelector(
-      'script[src="https://umami.marjala.com/script.js"]',
-    );
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
     expect(scriptElement?.getAttribute('data-domains')).toBe('example.com,test.com');
   });
@@ -78,9 +97,7 @@ describe('UmamiAnalytics', () => {
   it('disables auto-tracking when autoTrack is false', () => {
     render(<UmamiAnalytics websiteId="test-id" autoTrack={false} />);
 
-    const scriptElement = document.querySelector(
-      'script[src="https://umami.marjala.com/script.js"]',
-    );
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
     expect(scriptElement?.getAttribute('data-auto-track')).toBe('false');
   });
@@ -88,9 +105,7 @@ describe('UmamiAnalytics', () => {
   it('does not add data-auto-track when autoTrack is true (default)', () => {
     render(<UmamiAnalytics websiteId="test-id" />);
 
-    const scriptElement = document.querySelector(
-      'script[src="https://umami.marjala.com/script.js"]',
-    );
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
     expect(scriptElement?.getAttribute('data-auto-track')).toBeNull();
   });
@@ -99,12 +114,12 @@ describe('UmamiAnalytics', () => {
     const { rerender } = render(<UmamiAnalytics websiteId="test-id" />);
 
     // First render should create script
-    let scripts = document.querySelectorAll('script[src="https://umami.marjala.com/script.js"]');
+    let scripts = document.querySelectorAll('script[src="https://cloud.umami.is/script.js"]');
     expect(scripts.length).toBe(1);
 
     // Re-render should not create another script
     rerender(<UmamiAnalytics websiteId="test-id" />);
-    scripts = document.querySelectorAll('script[src="https://umami.marjala.com/script.js"]');
+    scripts = document.querySelectorAll('script[src="https://cloud.umami.is/script.js"]');
     expect(scripts.length).toBe(1);
   });
 });

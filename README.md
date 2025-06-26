@@ -84,16 +84,24 @@ export default App;
 Configure your Umami website ID through an environment variable:
 
 ```env
-# .env.local (Next.js) or .env (Create React App/Vite)
-NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id-here
+# Universal (works with all frameworks)
+UMAMI_WEBSITE_ID=your-website-id-here
 ```
 
-**Note**: For Create React App, use `REACT_APP_UMAMI_WEBSITE_ID` instead:
+**Framework-specific alternatives** (if you can't use the universal variable):
 
 ```env
-# .env (Create React App)
+# Next.js
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id-here
+
+# Create React App
 REACT_APP_UMAMI_WEBSITE_ID=your-website-id-here
 ```
+
+The component will check environment variables in this order:
+1. `UMAMI_WEBSITE_ID` (recommended - works everywhere)
+2. `NEXT_PUBLIC_UMAMI_WEBSITE_ID` (Next.js)  
+3. `REACT_APP_UMAMI_WEBSITE_ID` (Create React App)
 
 ### Props
 
@@ -110,12 +118,12 @@ You can also configure the component through props:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `websiteId` | `string` | `process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Your Umami website ID |
-| `src` | `string` | `https://umami.marjala.com/script.js` | The URL of your Umami script |
+| `websiteId` | `string` | `process.env.UMAMI_WEBSITE_ID` | Your Umami website ID |
+| `src` | `string` | `https://cloud.umami.is/script.js` | The URL of your Umami script (official CDN) |
 | `domains` | `string[]` | `undefined` | Restrict tracking to specific domains |
 | `autoTrack` | `boolean` | `true` | Whether to automatically track page views |
 
-**Note**: The component will automatically detect and use `REACT_APP_UMAMI_WEBSITE_ID` if `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is not available.
+**Note**: The component checks multiple environment variable names for maximum compatibility across frameworks.
 
 ## 🧩 Features
 

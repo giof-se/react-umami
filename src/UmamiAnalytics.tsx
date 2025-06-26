@@ -24,8 +24,11 @@ export const UmamiAnalytics = ({
   autoTrack = true,
 }: UmamiAnalyticsProps) => {
   const finalWebsiteId =
-    websiteId ?? process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ?? process.env.REACT_APP_UMAMI_WEBSITE_ID;
-  const finalSrc = src ?? 'https://umami.marjala.com/script.js';
+    websiteId ??
+    process.env.UMAMI_WEBSITE_ID ??
+    process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ??
+    process.env.REACT_APP_UMAMI_WEBSITE_ID;
+  const finalSrc = src ?? 'https://cloud.umami.is/script.js';
 
   useEffect(() => {
     if (!finalWebsiteId) {
