@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.4.0
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.3.0...v2.4.0)
+
+### 🚀 Enhancements
+
+- Add comprehensive Next.js App Router support ([374866c](https://github.com/giof-se/react-umami/commit/374866c))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.2.3
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.2.2...v2.2.3)
