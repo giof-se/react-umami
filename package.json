@@ -1,6 +1,6 @@
 {
   "name": "@giof-se/react-umami",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Umami Analytics component for React applications with dry-run testing and debug features",
   "keywords": ["umami", "analytics", "react", "umami-react", "react-umami"],
   "license": "MIT",
