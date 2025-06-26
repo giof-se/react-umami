@@ -1,9 +1,9 @@
-# `@giof-se/react-umami` – Umami Analytics for React
+# `@giof/react-umami` – Umami Analytics for React
 
 A React component for Umami Analytics with built-in dry-run testing, debug logging, and SSR safety.
 
 [![CI](https://github.com/giof-se/umami/actions/workflows/ci.yml/badge.svg)](https://github.com/giof-se/umami/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@giof-se/react-umami.svg)](https://www.npmjs.com/package/@giof-se/react-umami)
+[![npm version](https://img.shields.io/npm/v/@giof/react-umami.svg)](https://www.npmjs.com/package/@giof/react-umami)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## 🚀 Installation
@@ -11,11 +11,11 @@ A React component for Umami Analytics with built-in dry-run testing, debug loggi
 Install the package via **pnpm**, **npm**, or **yarn**:
 
 ```sh
-pnpm add @giof-se/react-umami
+pnpm add @giof/react-umami
 # or
-npm install @giof-se/react-umami
+npm install @giof/react-umami
 # or
-yarn add @giof-se/react-umami
+yarn add @giof/react-umami
 ```
 
 ## 📊 Usage
@@ -24,7 +24,7 @@ Add the component to your React application:
 
 ```tsx
 // In your main app component or layout
-import { UmamiAnalytics } from '@giof-se/react-umami';
+import { UmamiAnalytics } from '@giof/react-umami';
 
 export default function App() {
   return (
@@ -40,7 +40,7 @@ export default function App() {
 
 ```tsx
 // app/layout.tsx (App Router)
-import { UmamiAnalytics } from '@giof-se/react-umami';
+import { UmamiAnalytics } from '@giof/react-umami';
 
 export default function RootLayout({ 
   children 
@@ -63,7 +63,7 @@ export default function RootLayout({
 
 ```tsx
 // src/App.tsx
-import { UmamiAnalytics } from '@giof-se/react-umami';
+import { UmamiAnalytics } from '@giof/react-umami';
 
 function App() {
   return (
@@ -156,7 +156,7 @@ You can also configure the component through props:
 ### Event Tracking with Utilities
 
 ```tsx
-import { UmamiAnalytics, trackEvent, trackPageView } from '@giof-se/react-umami';
+import { UmamiAnalytics, trackEvent, trackPageView } from '@giof/react-umami';
 
 // Track custom events
 const handleButtonClick = () => {
@@ -175,7 +175,7 @@ const handleNavigation = (path: string) => {
 ### Advanced Hook Usage
 
 ```tsx
-import { useUmami } from '@giof-se/react-umami';
+import { useUmami } from '@giof/react-umami';
 import { useEffect } from 'react';
 
 function MyComponent() {
@@ -319,7 +319,7 @@ The workflow has been enhanced to handle different trigger methods:
 
 ## Comparison
 
-| Feature | @giof-se/react-umami | Other Libraries |
+| Feature | @giof/react-umami | Other Libraries |
 |---------|----------------------|-----------------|
 | Dry Run Testing | ✅ | ❌ |
 | Debug Logging | ✅ | Limited |

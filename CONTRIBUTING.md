@@ -1,4 +1,4 @@
-# Contributing to @giof-se/react-umami
+# Contributing to @giof/react-umami
 
 Thank you for considering contributing to this project! We welcome contributions of all kinds.
 

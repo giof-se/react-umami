@@ -105,7 +105,7 @@ jobs:
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org"
-          scope: "@giof-se"
+          scope: "@giof"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -192,7 +192,7 @@ jobs:
           echo "Publishing package version $(node -p "require('./package.json').version")"
           # Create .npmrc using the Personal Access Token
           cat > .npmrc << EOF
-          @giof-se:registry=https://registry.npmjs.org
+          @giof:registry=https://registry.npmjs.org
           //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           EOF
           cat .npmrc
@@ -244,7 +244,7 @@ jobs:
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org"
-          scope: "@giof-se"
+          scope: "@giof"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -331,7 +331,7 @@ jobs:
           echo "Publishing package version $(node -p "require('./package.json').version")"
           # Create .npmrc using the Personal Access Token
           cat > .npmrc << EOF
-          @giof-se:registry=https://registry.npmjs.org
+          @giof:registry=https://registry.npmjs.org
           //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           EOF
           cat .npmrc
