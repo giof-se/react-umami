@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.0.1
+
+[compare changes](https://github.com/giof-se/umami/compare/v2.0.0...v2.0.1)
+
+### 🩹 Fixes
+
+- Use official Umami CDN and framework-agnostic environment variable ([b8ed8ae](https://github.com/giof-se/umami/commit/b8ed8ae))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.2.0
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.39...v1.2.0)
