@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.1.0
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.0.4...v2.1.0)
+
+### 🚀 Enhancements
+
+- Add environment variable support for custom Umami script URLs ([0d7b683](https://github.com/giof-se/react-umami/commit/0d7b683))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.0.1
 
 [compare changes](https://github.com/giof-se/umami/compare/v2.0.0...v2.0.1)
