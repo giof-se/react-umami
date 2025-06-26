@@ -1,6 +1,6 @@
 {
   "name": "@giof/react-umami",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Umami Analytics component for React applications with dry-run testing and debug features",
   "keywords": [
     "umami",

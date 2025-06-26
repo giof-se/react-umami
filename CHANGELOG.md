@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.2.3
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.2.2...v2.2.3)
+
+### 📖 Documentation
+
+- Enhance dry run mode documentation ([37e5ff8](https://github.com/giof-se/react-umami/commit/37e5ff8))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.2.1
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.2.0...v2.2.1)
