@@ -122,4 +122,46 @@ describe('UmamiAnalytics', () => {
     scripts = document.querySelectorAll('script[src="https://cloud.umami.is/script.js"]');
     expect(scripts.length).toBe(1);
   });
+
+  it('handles dry run mode correctly', () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    
+    render(<UmamiAnalytics websiteId="test-id" dryRun={true} debug={true} />);
+
+    // Should not inject script in dry run mode
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).toBeNull();
+
+    // Should log dry run message
+    expect(consoleSpy).toHaveBeenCalledWith('UmamiAnalytics: Dry run mode enabled - no script will be loaded');
+
+    // Should create mock umami object
+    expect(window.umami).toBeDefined();
+    expect(typeof window.umami?.track).toBe('function');
+
+    consoleSpy.mockRestore();
+  });
+
+  it('enables debug logging when debug=true', () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    
+    render(<UmamiAnalytics websiteId="test-id" debug={true} />);
+
+    // Should log initialization config
+    expect(consoleSpy).toHaveBeenCalledWith('UmamiAnalytics: Initializing with config:', expect.objectContaining({
+      websiteId: 'test-id',
+      debug: true,
+    }));
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles missing debug props gracefully', () => {
+    // Test that component works without debug or dryRun props
+    render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
+  });
 });

@@ -1,6 +1,7 @@
 // src/UmamiAnalytics.tsx
 
 import React, { useEffect } from 'react';
+import './types';
 
 interface UmamiAnalyticsProps {
   websiteId?: string;
@@ -15,6 +16,16 @@ interface UmamiAnalyticsProps {
    * @default true
    */
   autoTrack?: boolean;
+  /**
+   * Enable dry run mode for testing (no real events sent to Umami)
+   * @default false
+   */
+  dryRun?: boolean;
+  /**
+   * Enable debug logging to console
+   * @default false
+   */
+  debug?: boolean;
 }
 
 export const UmamiAnalytics = ({
@@ -22,6 +33,8 @@ export const UmamiAnalytics = ({
   src,
   domains,
   autoTrack = true,
+  dryRun = false,
+  debug = false,
 }: UmamiAnalyticsProps) => {
   const finalWebsiteId =
     websiteId ??
@@ -31,15 +44,58 @@ export const UmamiAnalytics = ({
   const finalSrc = src ?? 'https://cloud.umami.is/script.js';
 
   useEffect(() => {
+    // SSR safety check - ensure we're in a browser environment
+    if (typeof window === 'undefined') {
+      if (debug) {
+        console.log('UmamiAnalytics: SSR detected, skipping script injection');
+      }
+      return;
+    }
+
     if (!finalWebsiteId) {
       console.warn('UmamiAnalytics: No websiteId provided.');
+      return;
+    }
+
+    if (debug) {
+      console.log('UmamiAnalytics: Initializing with config:', {
+        websiteId: finalWebsiteId,
+        src: finalSrc,
+        domains,
+        autoTrack,
+        dryRun,
+        debug,
+      });
+    }
+
+    // Handle dry run mode
+    if (dryRun) {
+      if (debug) {
+        console.log('UmamiAnalytics: Dry run mode enabled - no script will be loaded');
+      }
+      
+      // Create mock umami object for testing
+      if (!window.umami) {
+        window.umami = {
+          track: (eventName: string, eventData?: Record<string, any>) => {
+            console.log('UmamiAnalytics [DRY RUN]: Would track event:', eventName, eventData);
+          },
+        };
+      }
       return;
     }
 
     // Check if script already exists
     const existingScript = document.querySelector(`script[src="${finalSrc}"]`);
     if (existingScript) {
+      if (debug) {
+        console.log('UmamiAnalytics: Script already exists, skipping injection');
+      }
       return;
+    }
+
+    if (debug) {
+      console.log('UmamiAnalytics: Injecting script into document head');
     }
 
     // Create and configure script element
@@ -57,6 +113,16 @@ export const UmamiAnalytics = ({
       script.setAttribute('data-auto-track', 'false');
     }
 
+    // Add load event listener for debugging
+    if (debug) {
+      script.onload = () => {
+        console.log('UmamiAnalytics: Script loaded successfully');
+      };
+      script.onerror = (error) => {
+        console.error('UmamiAnalytics: Script failed to load', error);
+      };
+    }
+
     // Append script to document head
     document.head.appendChild(script);
 
@@ -64,10 +130,13 @@ export const UmamiAnalytics = ({
     return () => {
       const scriptToRemove = document.querySelector(`script[src="${finalSrc}"]`);
       if (scriptToRemove) {
+        if (debug) {
+          console.log('UmamiAnalytics: Cleaning up script on unmount');
+        }
         scriptToRemove.remove();
       }
     };
-  }, [finalWebsiteId, finalSrc, domains, autoTrack]);
+  }, [finalWebsiteId, finalSrc, domains, autoTrack, dryRun, debug]);
 
   // Return null as this component doesn't render any visible content
   return null;

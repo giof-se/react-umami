@@ -1,9 +1,9 @@
-# `@giof-se/umami` – Umami Analytics for React
+# `@giof-se/react-umami` – Umami Analytics for React
 
-A lightweight and reusable Umami Analytics component for React applications, making it easy to integrate tracking across projects.
+A React component for Umami Analytics with built-in dry-run testing, debug logging, and SSR safety.
 
 [![CI](https://github.com/giof-se/umami/actions/workflows/ci.yml/badge.svg)](https://github.com/giof-se/umami/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@giof-se/umami.svg)](https://www.npmjs.com/package/@giof-se/umami)
+[![npm version](https://img.shields.io/npm/v/@giof-se/react-umami.svg)](https://www.npmjs.com/package/@giof-se/react-umami)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## 🚀 Installation
@@ -11,11 +11,11 @@ A lightweight and reusable Umami Analytics component for React applications, mak
 Install the package via **pnpm**, **npm**, or **yarn**:
 
 ```sh
-pnpm add @giof-se/umami
+pnpm add @giof-se/react-umami
 # or
-npm install @giof-se/umami
+npm install @giof-se/react-umami
 # or
-yarn add @giof-se/umami
+yarn add @giof-se/react-umami
 ```
 
 ## 📊 Usage
@@ -24,7 +24,7 @@ Add the component to your React application:
 
 ```tsx
 // In your main app component or layout
-import { UmamiAnalytics } from '@giof-se/umami';
+import { UmamiAnalytics } from '@giof-se/react-umami';
 
 export default function App() {
   return (
@@ -40,7 +40,7 @@ export default function App() {
 
 ```tsx
 // app/layout.tsx (App Router)
-import { UmamiAnalytics } from '@giof-se/umami';
+import { UmamiAnalytics } from '@giof-se/react-umami';
 
 export default function RootLayout({ 
   children 
@@ -63,7 +63,7 @@ export default function RootLayout({
 
 ```tsx
 // src/App.tsx
-import { UmamiAnalytics } from '@giof-se/umami';
+import { UmamiAnalytics } from '@giof-se/react-umami';
 
 function App() {
   return (
@@ -122,20 +122,91 @@ You can also configure the component through props:
 | `src` | `string` | `https://cloud.umami.is/script.js` | The URL of your Umami script (official CDN) |
 | `domains` | `string[]` | `undefined` | Restrict tracking to specific domains |
 | `autoTrack` | `boolean` | `true` | Whether to automatically track page views |
+| `dryRun` | `boolean` | `false` | **🧪 Enable dry run mode** - no real events sent to Umami |
+| `debug` | `boolean` | `false` | **🔍 Enable debug logging** - detailed console output |
 
 **Note**: The component checks multiple environment variable names for maximum compatibility across frameworks.
 
-## 🧩 Features
+## 🚀 Advanced Usage Examples
 
-- ⚛️ Framework-agnostic React component
-- 🔌 Easy integration with any React application
-- 🔧 Configurable via props or environment variables
-- 📱 Works with Next.js, Create React App, Vite, and more
-- 🧠 Smart defaults and duplicate script prevention
-- 🪶 Lightweight with zero dependencies
-- 🔒 Domain restriction support
-- 🎛️ Fine-grained tracking control
-- 🔄 Automatic cleanup on component unmount
+### Development & Testing
+
+```tsx
+// Perfect for development - see everything that's happening
+<UmamiAnalytics 
+  websiteId="your-website-id"
+  debug={true}
+  dryRun={true}  // No real events sent in development
+/>
+```
+
+### Event Tracking with Utilities
+
+```tsx
+import { UmamiAnalytics, trackEvent, trackPageView } from '@giof-se/react-umami';
+
+// Track custom events
+const handleButtonClick = () => {
+  trackEvent('button_click', { 
+    button: 'signup',
+    location: 'header' 
+  });
+};
+
+// Track page views manually
+const handleNavigation = (path: string) => {
+  trackPageView(path, 'Custom Page Title');
+};
+```
+
+### Advanced Hook Usage
+
+```tsx
+import { useUmami } from '@giof-se/react-umami';
+import { useEffect } from 'react';
+
+function MyComponent() {
+  const { track, trackPage, isLoaded, updateConfig } = useUmami();
+
+  // Override configuration at runtime
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      updateConfig({ dryRun: true, debug: true });
+    }
+  }, [updateConfig]);
+
+  const handleClick = () => {
+    track('user_action', { component: 'MyComponent' });
+  };
+
+  return <button onClick={handleClick}>Track Me</button>;
+}
+```
+
+### Production Configuration
+
+```tsx
+// Perfect for production - minimal setup, maximum reliability
+<UmamiAnalytics 
+  domains={['yoursite.com', 'www.yoursite.com']}
+  autoTrack={true}
+/>
+```
+
+## Features
+
+- **Dry Run Mode** – Test analytics integration without sending real events
+- **Debug Logging** – Console output for development and troubleshooting  
+- **SSR Safety** – Server-side rendering protection for Next.js, Remix, etc.
+- **Runtime Configuration** – Override settings dynamically with the `useUmami` hook
+- **Event Tracking Helpers** – `trackEvent()` and `trackPageView()` utilities
+- **Framework Agnostic** – Works with Next.js, Create React App, Vite, Remix
+- **Environment Variables** – Universal `UMAMI_WEBSITE_ID` with framework fallbacks
+- **TypeScript Support** – Full type definitions included
+- **Zero Dependencies** – No external dependencies
+- **Auto Cleanup** – Script removal on component unmount
+- **Duplicate Prevention** – Prevents script injection conflicts
+- **Domain Restrictions** – Limit tracking to specific domains
 
 ## 🛠️ Development
 
@@ -218,6 +289,25 @@ The workflow has been enhanced to handle different trigger methods:
 - Manual workflow dispatch with version input
 - Automated workflow runs from the autoversion workflow
 
-## 📄 License
+## Comparison
+
+| Feature | @giof-se/react-umami | Other Libraries |
+|---------|----------------------|-----------------|
+| Dry Run Testing | ✅ | ❌ |
+| Debug Logging | ✅ | Limited |
+| SSR Safety | ✅ | Manual setup |
+| Runtime Config | ✅ | Static only |
+| Framework Support | Universal | Framework-specific |
+| TypeScript | Full support | Varies |
+| Dependencies | Zero | Varies |
+
+## Support
+
+- **🐛 Bug Reports**: [Open an issue](https://github.com/giof-se/umami/issues/new)
+- **💡 Feature Requests**: [Open an issue](https://github.com/giof-se/umami/issues/new)
+- **📖 Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- **💬 Questions**: [GitHub Discussions](https://github.com/giof-se/umami/discussions)
+
+## License
 
 MIT © [giof-se](https://github.com/giof-se)
