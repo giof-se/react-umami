@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.5.1
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.5.0...v2.5.1)
+
+### 🩹 Fixes
+
+- Simplify autoversion workflow to use npm version ([5e28897](https://github.com/giof-se/react-umami/commit/5e28897))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.4.0
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.3.0...v2.4.0)
