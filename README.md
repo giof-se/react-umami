@@ -1,6 +1,8 @@
 # `@giof/react-umami` – Umami Analytics for React
 
-A React component for Umami Analytics with built-in dry-run testing, debug logging, and SSR safety.
+A React component for Umami Analytics with **built-in dry-run testing**, debug logging, and SSR safety.
+
+> 🧪 **Features dry-run mode for clean development** - test your tracking without polluting production data!
 
 [![CI](https://github.com/giof-se/umami/actions/workflows/ci.yml/badge.svg)](https://github.com/giof-se/umami/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@giof/react-umami.svg)](https://www.npmjs.com/package/@giof/react-umami)
@@ -140,6 +142,82 @@ You can also configure the component through props:
 
 **Note**: The component checks multiple environment variable names for maximum compatibility across frameworks.
 
+## 🧪 Dry Run Mode
+
+**Built-in dry-run testing for clean development!** 
+
+### What is Dry Run Mode?
+
+When `dryRun={true}`, the component:
+- 🚫 **Never loads external scripts** - no network requests to Umami servers
+- 🎭 **Creates a mock tracker** - your app works exactly the same
+- 📝 **Logs all events to console** - see exactly what would be tracked
+- 🛡️ **Protects your data** - no test/dev events pollute production analytics
+
+### Perfect for Development
+
+```tsx
+// Environment-aware setup
+<UmamiAnalytics 
+  websiteId="your-website-id"
+  dryRun={process.env.NODE_ENV === 'development'}
+  debug={process.env.NODE_ENV === 'development'}
+/>
+```
+
+**What you'll see in console:**
+```
+UmamiAnalytics [DRY RUN]: Would track event: button_click {
+  button: "signup",
+  location: "header",
+  userId: "123"
+}
+```
+
+### Testing Made Easy
+
+```tsx
+// Test your analytics without external dependencies
+describe('Analytics Integration', () => {
+  it('tracks user signup', () => {
+    render(<App />);
+    
+    fireEvent.click(screen.getByText('Sign Up'));
+    
+    // Verify tracking calls in dry run mode
+    expect(console.log).toHaveBeenCalledWith(
+      'UmamiAnalytics [DRY RUN]: Would track event:',
+      'signup',
+      { source: 'header' }
+    );
+  });
+});
+```
+
+### Privacy & Compliance
+
+```tsx
+// Respect user consent while maintaining functionality
+<UmamiAnalytics 
+  websiteId="your-website-id"
+  dryRun={!userConsent.analytics}
+  debug={!userConsent.analytics}
+/>
+```
+
+### Why This Matters
+
+❌ **Other libraries force you to choose:**
+- Pollute production data with test events
+- Complex mocking setup for testing
+- No visibility into what's being tracked
+
+✅ **With dry run mode:**
+- Clean production data guaranteed
+- Zero-config testing
+- Full transparency of tracking behavior
+- Same API in development and production
+
 ## 🚀 Advanced Usage Examples
 
 ### Development & Testing
@@ -221,20 +299,43 @@ UMAMI_SCRIPT_URL=https://analytics.yourcompany.com/script.js
 />
 ```
 
-## Features
+## ✨ Features
 
-- **Dry Run Mode** – Test analytics integration without sending real events
-- **Debug Logging** – Console output for development and troubleshooting  
-- **SSR Safety** – Server-side rendering protection for Next.js, Remix, etc.
-- **Runtime Configuration** – Override settings dynamically with the `useUmami` hook
-- **Event Tracking Helpers** – `trackEvent()` and `trackPageView()` utilities
-- **Framework Agnostic** – Works with Next.js, Create React App, Vite, Remix
-- **Environment Variables** – Universal `UMAMI_WEBSITE_ID` with framework fallbacks
-- **TypeScript Support** – Full type definitions included
-- **Zero Dependencies** – No external dependencies
-- **Auto Cleanup** – Script removal on component unmount
-- **Duplicate Prevention** – Prevents script injection conflicts
-- **Domain Restrictions** – Limit tracking to specific domains
+### 🧪 **Dry Run Mode** - *The Game Changer*
+Test analytics integration without sending real events. Perfect for development, testing, and respecting user privacy.
+
+### 🔍 **Debug Logging** 
+Detailed console output for development and troubleshooting. See exactly what's happening under the hood.
+
+### 🛡️ **SSR Safety** 
+Built-in server-side rendering protection for Next.js, Remix, and other SSR frameworks.
+
+### ⚙️ **Runtime Configuration** 
+Override settings dynamically with the `useUmami` hook. Perfect for consent management.
+
+### 🎯 **Event Tracking Helpers** 
+Simple `trackEvent()` and `trackPageView()` utilities for custom analytics.
+
+### 🌐 **Framework Agnostic** 
+Works seamlessly with Next.js, Create React App, Vite, Remix, and any React setup.
+
+### 🔧 **Environment Variables** 
+Universal `UMAMI_WEBSITE_ID` with automatic framework fallbacks for maximum compatibility.
+
+### 📘 **Full TypeScript Support** 
+Complete type definitions included. IntelliSense and type safety out of the box.
+
+### 📦 **Zero Dependencies** 
+No external dependencies. Lightweight and fast.
+
+### 🧹 **Auto Cleanup** 
+Automatic script removal on component unmount. No memory leaks.
+
+### 🚫 **Duplicate Prevention** 
+Smart script injection prevents conflicts and duplicate loading.
+
+### 🏠 **Domain Restrictions** 
+Limit tracking to specific domains for enhanced security.
 
 ## 🛠️ Development
 

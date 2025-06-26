@@ -84,7 +84,7 @@
     "{src,tests}/**/*.{js,jsx,ts,tsx}": [
       "biome check --write"
     ],
-    "*.{json,md}": [
+    "*.json": [
       "biome format --write"
     ]
   }
