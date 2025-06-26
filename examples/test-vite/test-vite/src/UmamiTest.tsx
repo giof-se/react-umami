@@ -28,9 +28,8 @@ const UmamiAnalytics = ({
       return;
     }
 
-    const finalWebsiteId = websiteId ?? 
-      process.env.UMAMI_WEBSITE_ID ?? 
-      import.meta.env.VITE_UMAMI_WEBSITE_ID; // Vite uses VITE_ prefix
+    const finalWebsiteId =
+      websiteId ?? process.env.UMAMI_WEBSITE_ID ?? import.meta.env.VITE_UMAMI_WEBSITE_ID; // Vite uses VITE_ prefix
 
     const finalSrc = src ?? 'https://cloud.umami.is/script.js';
 
@@ -121,7 +120,7 @@ const UmamiTest = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h2>Umami Analytics Test - Vite + React</h2>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label>
           <input

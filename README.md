@@ -81,27 +81,40 @@ export default App;
 
 ### Environment Variables
 
-Configure your Umami website ID through an environment variable:
+Configure your Umami analytics through environment variables:
 
 ```env
-# Universal (works with all frameworks)
+# Universal (works with all frameworks - server-side and build-time)
 UMAMI_WEBSITE_ID=your-website-id-here
+UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
 ```
 
-**Framework-specific alternatives** (if you can't use the universal variable):
+**Framework-specific client-side variables** (required for browser access):
 
 ```env
-# Next.js
+# Next.js (client-side access requires NEXT_PUBLIC_ prefix)
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id-here
+NEXT_PUBLIC_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
 
-# Create React App
+# Create React App (client-side access requires REACT_APP_ prefix)
 REACT_APP_UMAMI_WEBSITE_ID=your-website-id-here
+REACT_APP_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
 ```
+
+**💡 Pro Tip:** For Next.js, you can use both! Use `UMAMI_*` for server-side and `NEXT_PUBLIC_UMAMI_*` for client-side access.
 
 The component will check environment variables in this order:
+
+**Website ID:**
 1. `UMAMI_WEBSITE_ID` (recommended - works everywhere)
 2. `NEXT_PUBLIC_UMAMI_WEBSITE_ID` (Next.js)  
 3. `REACT_APP_UMAMI_WEBSITE_ID` (Create React App)
+
+**Script URL:**
+1. `UMAMI_SCRIPT_URL` (recommended - works everywhere)
+2. `NEXT_PUBLIC_UMAMI_SCRIPT_URL` (Next.js)
+3. `REACT_APP_UMAMI_SCRIPT_URL` (Create React App)
+4. `https://cloud.umami.is/script.js` (default fallback)
 
 ### Props
 
@@ -119,7 +132,7 @@ You can also configure the component through props:
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `websiteId` | `string` | `process.env.UMAMI_WEBSITE_ID` | Your Umami website ID |
-| `src` | `string` | `https://cloud.umami.is/script.js` | The URL of your Umami script (official CDN) |
+| `src` | `string` | `process.env.UMAMI_SCRIPT_URL` or `https://cloud.umami.is/script.js` | The URL of your Umami script |
 | `domains` | `string[]` | `undefined` | Restrict tracking to specific domains |
 | `autoTrack` | `boolean` | `true` | Whether to automatically track page views |
 | `dryRun` | `boolean` | `false` | **🧪 Enable dry run mode** - no real events sent to Umami |
@@ -181,6 +194,21 @@ function MyComponent() {
 
   return <button onClick={handleClick}>Track Me</button>;
 }
+```
+
+### Self-Hosted Umami Configuration
+
+```tsx
+// Using environment variables for self-hosted Umami
+<UmamiAnalytics 
+  domains={['yoursite.com', 'www.yoursite.com']}
+/>
+```
+
+```env
+# .env file
+UMAMI_WEBSITE_ID=your-website-id-here
+UMAMI_SCRIPT_URL=https://analytics.yourcompany.com/script.js
 ```
 
 ### Production Configuration

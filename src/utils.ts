@@ -1,13 +1,13 @@
 // src/utils.ts
 
-import type { UmamiTracker } from './types';
+import type { UmamiEventData, UmamiTracker } from './types';
 
 /**
  * Track a custom event with Umami
  * @param eventName - Name of the event to track
  * @param eventData - Optional data to include with the event
  */
-export const trackEvent = (eventName: string, eventData?: Record<string, any>): void => {
+export const trackEvent = (eventName: string, eventData?: UmamiEventData): void => {
   if (typeof window === 'undefined') {
     console.warn('trackEvent: Not in browser environment');
     return;
@@ -37,12 +37,12 @@ export const trackPageView = (path?: string, title?: string): void => {
     return;
   }
 
-  const eventData: Record<string, any> = {};
-  
+  const eventData: UmamiEventData = {};
+
   if (path) {
     eventData.path = path;
   }
-  
+
   if (title) {
     eventData.title = title;
   }

@@ -1,7 +1,8 @@
 // src/hooks.ts
 
 import { useCallback, useRef } from 'react';
-import { trackEvent, trackPageView, isUmamiLoaded } from './utils';
+import type { UmamiEventData } from './types';
+import { isUmamiLoaded, trackEvent, trackPageView } from './utils';
 
 export interface UmamiConfig {
   websiteId?: string;
@@ -28,7 +29,7 @@ export const useUmami = () => {
   /**
    * Track a custom event
    */
-  const track = useCallback((eventName: string, eventData?: Record<string, any>) => {
+  const track = useCallback((eventName: string, eventData?: UmamiEventData) => {
     if (configRef.current.dryRun) {
       console.log('UmamiAnalytics [DRY RUN]: Would track event:', eventName, eventData);
       return;

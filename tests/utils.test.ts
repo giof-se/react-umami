@@ -1,12 +1,12 @@
 // tests/utils.test.ts
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { trackEvent, trackPageView, isUmamiLoaded, getUmami } from '../src/utils';
+import { getUmami, isUmamiLoaded, trackEvent, trackPageView } from '../src/utils';
 
 describe('Utils', () => {
   beforeEach(() => {
     // Clear window.umami before each test
-    delete (window as any).umami;
+    (window as { umami?: unknown }).umami = undefined;
     vi.clearAllMocks();
   });
 
@@ -15,15 +15,15 @@ describe('Utils', () => {
       const mockTrack = vi.fn();
       window.umami = { track: mockTrack };
 
-      trackEvent('test-event', { key: 'value' });
+      trackEvent('test_event', { param: 'value' });
 
-      expect(mockTrack).toHaveBeenCalledWith('test-event', { key: 'value' });
+      expect(mockTrack).toHaveBeenCalledWith('test_event', { param: 'value' });
     });
 
     it('warns when umami is not loaded', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      trackEvent('test-event');
+      trackEvent('test_event');
 
       expect(consoleSpy).toHaveBeenCalledWith('trackEvent: Umami not loaded yet');
       consoleSpy.mockRestore();
@@ -31,15 +31,14 @@ describe('Utils', () => {
 
     it('warns in server environment', () => {
       const originalWindow = global.window;
-      delete (global as any).window;
+      (global as { window?: unknown }).window = undefined;
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      trackEvent('test-event');
+      trackEvent('test_event');
 
       expect(consoleSpy).toHaveBeenCalledWith('trackEvent: Not in browser environment');
-      
-      global.window = originalWindow;
       consoleSpy.mockRestore();
+      global.window = originalWindow;
     });
   });
 
@@ -48,21 +47,39 @@ describe('Utils', () => {
       const mockTrack = vi.fn();
       window.umami = { track: mockTrack };
 
-      trackPageView('/test-path', 'Test Title');
+      trackPageView('/test', 'Test Page');
 
-      expect(mockTrack).toHaveBeenCalledWith('pageview', {
-        path: '/test-path',
-        title: 'Test Title',
-      });
+      expect(mockTrack).toHaveBeenCalledWith('pageview', { path: '/test', title: 'Test Page' });
     });
 
-    it('tracks page view without parameters', () => {
+    it('tracks page view with empty data when no params provided', () => {
       const mockTrack = vi.fn();
       window.umami = { track: mockTrack };
 
       trackPageView();
 
       expect(mockTrack).toHaveBeenCalledWith('pageview', {});
+    });
+
+    it('warns when umami is not loaded', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      trackPageView('/test');
+
+      expect(consoleSpy).toHaveBeenCalledWith('trackPageView: Umami not loaded yet');
+      consoleSpy.mockRestore();
+    });
+
+    it('warns in server environment', () => {
+      const originalWindow = global.window;
+      (global as { window?: unknown }).window = undefined;
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      trackPageView('/test');
+
+      expect(consoleSpy).toHaveBeenCalledWith('trackPageView: Not in browser environment');
+      consoleSpy.mockRestore();
+      global.window = originalWindow;
     });
   });
 
@@ -79,7 +96,7 @@ describe('Utils', () => {
 
     it('returns false in server environment', () => {
       const originalWindow = global.window;
-      delete (global as any).window;
+      (global as { window?: unknown }).window = undefined;
 
       expect(isUmamiLoaded()).toBe(false);
 
@@ -101,7 +118,7 @@ describe('Utils', () => {
 
     it('returns undefined in server environment', () => {
       const originalWindow = global.window;
-      delete (global as any).window;
+      (global as { window?: unknown }).window = undefined;
 
       expect(getUmami()).toBeUndefined();
 

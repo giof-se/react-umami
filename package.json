@@ -2,7 +2,13 @@
   "name": "@giof-se/react-umami",
   "version": "2.0.4",
   "description": "Umami Analytics component for React applications with dry-run testing and debug features",
-  "keywords": ["umami", "analytics", "react", "umami-react", "react-umami"],
+  "keywords": [
+    "umami",
+    "analytics",
+    "react",
+    "umami-react",
+    "react-umami"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,7 +20,10 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts",
     "fmt": "biome format --write .",
@@ -36,22 +45,22 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.6.0",
-    "@testing-library/react": "^15.0.0",
+    "@biomejs/biome": "2.0.5",
+    "@testing-library/react": "^16.3.0",
     "@total-typescript/tsconfig": "^1.0.4",
-    "@types/node": "^22.13.5",
-    "@types/react": "^19.0.10",
-    "@vitejs/plugin-react": "^4.2.1",
-    "@vitest/coverage-v8": "^1.3.1",
-    "bumpp": "^9.4.0",
-    "changelogen": "^0.5.5",
-    "happy-dom": "^14.0.0",
+    "@types/node": "^24.0.4",
+    "@types/react": "^19.1.8",
+    "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "bumpp": "^10.2.0",
+    "changelogen": "^0.6.1",
+    "happy-dom": "^18.0.1",
     "husky": "^9.1.7",
-    "jsdom": "^24.0.0",
-    "lint-staged": "^15.4.3",
-    "tsup": "^8.3.6",
-    "typescript": "^5.7.3",
-    "vitest": "^1.3.1"
+    "jsdom": "^26.1.0",
+    "lint-staged": "^16.1.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
@@ -61,11 +70,22 @@
     "registry": "https://registry.npmjs.org"
   },
   "pnpm": {
-    "ignoredBuiltDependencies": ["esbuild"],
-    "onlyBuiltDependencies": ["@biomejs/biome"]
+    "ignoredBuiltDependencies": [
+      "esbuild"
+    ],
+    "onlyBuiltDependencies": [
+      "@biomejs/biome"
+    ]
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["biome format --write", "biome check --apply"],
-    "*.{json,md}": ["biome format --write"]
+    "*.{js,jsx,ts,tsx}": [
+      "biome format --write"
+    ],
+    "{src,tests}/**/*.{js,jsx,ts,tsx}": [
+      "biome check --write"
+    ],
+    "*.{json,md}": [
+      "biome format --write"
+    ]
   }
 }

@@ -1,7 +1,6 @@
 // tests/UmamiAnalytics.test.tsx
 
-import { render, screen } from '@testing-library/react';
-import React from 'react';
+import { render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UmamiAnalytics } from '../src/UmamiAnalytics';
 
@@ -14,6 +13,9 @@ describe('UmamiAnalytics', () => {
     process.env.UMAMI_WEBSITE_ID = undefined;
     process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID = undefined;
     process.env.REACT_APP_UMAMI_WEBSITE_ID = undefined;
+    process.env.UMAMI_SCRIPT_URL = undefined;
+    process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL = undefined;
+    process.env.REACT_APP_UMAMI_SCRIPT_URL = undefined;
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     // Clear any existing scripts from previous tests
     document.head.innerHTML = '';
@@ -125,7 +127,7 @@ describe('UmamiAnalytics', () => {
 
   it('handles dry run mode correctly', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    
+
     render(<UmamiAnalytics websiteId="test-id" dryRun={true} debug={true} />);
 
     // Should not inject script in dry run mode
@@ -133,7 +135,9 @@ describe('UmamiAnalytics', () => {
     expect(scriptElement).toBeNull();
 
     // Should log dry run message
-    expect(consoleSpy).toHaveBeenCalledWith('UmamiAnalytics: Dry run mode enabled - no script will be loaded');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'UmamiAnalytics: Dry run mode enabled - no script will be loaded',
+    );
 
     // Should create mock umami object
     expect(window.umami).toBeDefined();
@@ -144,14 +148,17 @@ describe('UmamiAnalytics', () => {
 
   it('enables debug logging when debug=true', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    
+
     render(<UmamiAnalytics websiteId="test-id" debug={true} />);
 
     // Should log initialization config
-    expect(consoleSpy).toHaveBeenCalledWith('UmamiAnalytics: Initializing with config:', expect.objectContaining({
-      websiteId: 'test-id',
-      debug: true,
-    }));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'UmamiAnalytics: Initializing with config:',
+      expect.objectContaining({
+        websiteId: 'test-id',
+        debug: true,
+      }),
+    );
 
     consoleSpy.mockRestore();
   });
@@ -159,6 +166,56 @@ describe('UmamiAnalytics', () => {
   it('handles missing debug props gracefully', () => {
     // Test that component works without debug or dryRun props
     render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
+  });
+
+  it('uses UMAMI_SCRIPT_URL environment variable with highest priority', () => {
+    process.env.UMAMI_WEBSITE_ID = 'test-id';
+    process.env.UMAMI_SCRIPT_URL = 'https://analytics.example.com/script.js';
+    process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL = 'https://next.example.com/script.js';
+    process.env.REACT_APP_UMAMI_SCRIPT_URL = 'https://cra.example.com/script.js';
+
+    render(<UmamiAnalytics />);
+
+    const scriptElement = document.querySelector(
+      'script[src="https://analytics.example.com/script.js"]',
+    );
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
+  });
+
+  it('falls back to NEXT_PUBLIC_UMAMI_SCRIPT_URL when UMAMI_SCRIPT_URL is not set', () => {
+    process.env.UMAMI_WEBSITE_ID = 'test-id';
+    process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL = 'https://next.example.com/script.js';
+    process.env.REACT_APP_UMAMI_SCRIPT_URL = 'https://cra.example.com/script.js';
+
+    render(<UmamiAnalytics />);
+
+    const scriptElement = document.querySelector(
+      'script[src="https://next.example.com/script.js"]',
+    );
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
+  });
+
+  it('falls back to REACT_APP_UMAMI_SCRIPT_URL when others are not set', () => {
+    process.env.UMAMI_WEBSITE_ID = 'test-id';
+    process.env.REACT_APP_UMAMI_SCRIPT_URL = 'https://cra.example.com/script.js';
+
+    render(<UmamiAnalytics />);
+
+    const scriptElement = document.querySelector('script[src="https://cra.example.com/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
+  });
+
+  it('falls back to default script URL when no environment variables are set', () => {
+    process.env.UMAMI_WEBSITE_ID = 'test-id';
+
+    render(<UmamiAnalytics />);
 
     const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
