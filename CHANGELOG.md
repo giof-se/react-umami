@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.2.0
+
+[compare changes](https://github.com/giof-se/umami/compare/v1.1.39...v1.2.0)
+
+### 🚀 Enhancements
+
+- Make package framework-agnostic ([71534a9](https://github.com/giof-se/umami/commit/71534a9))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](http://github.com/arnsteinsm))
+
 ## v1.1.38
 
 [compare changes](https://github.com/giof-se/umami/compare/v1.1.37...v1.1.38)
