@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import './globals.css';
 import ClientUmamiAnalytics from '@/components/ClientUmamiAnalytics';
 
 export const metadata: Metadata = {

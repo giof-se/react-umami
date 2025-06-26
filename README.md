@@ -362,7 +362,7 @@ UMAMI_SCRIPT_URL=https://analytics.yourcompany.com/script.js
 
 ## ✨ Features
 
-### 🧪 **Dry Run Mode** - *The Game Changer*
+### 🧪 **Dry Run Mode** 
 Test analytics integration without sending real events. Perfect for development, testing, and respecting user privacy.
 
 ### 🔍 **Debug Logging** 

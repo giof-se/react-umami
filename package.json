@@ -9,15 +9,15 @@
     "umami-react",
     "react-umami"
   ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/giof-se/react-umami.git"
-  },
   "homepage": "https://github.com/giof-se/react-umami#readme",
   "bugs": {
     "url": "https://github.com/giof-se/react-umami/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giof-se/react-umami.git"
+  },
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -26,23 +26,34 @@
   ],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts",
+    "changelog": "changelogen --output CHANGELOG.md",
+    "changelog:release": "changelogen --output CHANGELOG.md --release",
     "fmt": "biome format --write .",
     "lint": "biome check src tests *.json",
     "lint:write": "biome check --write src tests *.json",
+    "prepare": "husky",
     "prepare-release": "pnpm test && pnpm build && changelogen --output CHANGELOG.md --release",
     "prepublishOnly": "pnpm build",
-    "release": "pnpm validate && bumpp package.json --commit \"release: v%s\" --tag \"v%s\" && git push --follow-tags",
+    "release": "pnpm validate && bumpp && git push --follow-tags",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "validate": "pnpm lint && pnpm typecheck && pnpm test",
-    "changelog": "changelogen --output CHANGELOG.md",
-    "changelog:release": "changelogen --output CHANGELOG.md --release",
-    "version:patch": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --patch",
-    "version:minor": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --minor",
     "version:major": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --major",
-    "prepare": "husky"
+    "version:minor": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --minor",
+    "version:patch": "bumpp package.json --commit \"release: v%s\" --tag \"v%s\" --push --patch"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "biome format --write"
+    ],
+    "{src,tests}/**/*.{js,jsx,ts,tsx}": [
+      "biome check --write"
+    ],
+    "*.json": [
+      "biome format --write"
+    ]
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.5",
@@ -75,17 +86,6 @@
     ],
     "onlyBuiltDependencies": [
       "@biomejs/biome"
-    ]
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "biome format --write"
-    ],
-    "{src,tests}/**/*.{js,jsx,ts,tsx}": [
-      "biome check --write"
-    ],
-    "*.json": [
-      "biome format --write"
     ]
   }
 }

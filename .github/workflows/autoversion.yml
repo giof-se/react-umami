@@ -79,18 +79,7 @@ jobs:
       - name: Run Validation
         run: pnpm validate
 
-      - name: Determine Version Bump Type
-        id: bump-type
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ $COMMIT_MSG == *"BREAKING CHANGE"* || $COMMIT_MSG == *"major"* ]]; then
-            echo "TYPE=major" >> $GITHUB_OUTPUT
-          elif [[ $COMMIT_MSG == *"feat"* || $COMMIT_MSG == *"feature"* || $COMMIT_MSG == *"minor"* ]]; then
-            echo "TYPE=minor" >> $GITHUB_OUTPUT
-          else
-            echo "TYPE=patch" >> $GITHUB_OUTPUT
-          fi
-          echo "Determined version bump type: ${{ steps.bump-type.outputs.TYPE }}"
+
 
       - name: Generate Changelog
         run: |
@@ -109,8 +98,17 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
           
-          # Bump the version based on the commit type
-          pnpm version ${{ steps.bump-type.outputs.TYPE }} --no-git-tag-version
+          # Use bumpp with the config file (defaults to patch)
+          # Override only if commit indicates otherwise
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ $COMMIT_MSG == *"BREAKING CHANGE"* || $COMMIT_MSG == *"major"* ]]; then
+            pnpm bumpp --major --no-push --no-tag
+          elif [[ $COMMIT_MSG == *"feat"* || $COMMIT_MSG == *"feature"* || $COMMIT_MSG == *"minor"* ]]; then
+            pnpm bumpp --minor --no-push --no-tag
+          else
+            # Use default from bumpp.config.ts (patch)
+            pnpm bumpp --no-push --no-tag
+          fi
           
           # Get the new version
           NEW_VERSION=$(node -p "require('./package.json').version")
