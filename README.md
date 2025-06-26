@@ -40,9 +40,48 @@ export default function App() {
 
 ### Next.js Usage
 
+#### App Router (Recommended)
+
+> ⚠️ **Important for Next.js + App Router**: You MUST use a client wrapper component to avoid build errors caused by mixing server and client components. See the [complete Next.js example](examples/nextjs-app-router/) for details.
+
+For Next.js 13+ with App Router, you need to create a client wrapper component to avoid SSR/client-side mixing issues:
+
+**Step 1: Create a client wrapper component**
+
 ```tsx
-// app/layout.tsx (App Router)
-import { UmamiAnalytics } from '@giof/react-umami';
+// components/ClientUmamiAnalytics.tsx
+'use client';
+
+import dynamic from 'next/dynamic';
+
+// Dynamically import UmamiAnalytics with SSR disabled
+const UmamiAnalytics = dynamic(
+  () => import('@giof/react-umami').then((mod) => ({ default: mod.UmamiAnalytics })),
+  { 
+    ssr: false,
+    loading: () => null 
+  }
+);
+
+interface ClientUmamiAnalyticsProps {
+  websiteId?: string;
+  src?: string;
+  domains?: string[];
+  autoTrack?: boolean;
+  dryRun?: boolean;
+  debug?: boolean;
+}
+
+export default function ClientUmamiAnalytics(props: ClientUmamiAnalyticsProps) {
+  return <UmamiAnalytics {...props} />;
+}
+```
+
+**Step 2: Use the wrapper in your layout**
+
+```tsx
+// app/layout.tsx
+import ClientUmamiAnalytics from '@/components/ClientUmamiAnalytics';
 
 export default function RootLayout({ 
   children 
@@ -54,9 +93,31 @@ export default function RootLayout({
       <head />
       <body>
         {children}
-        <UmamiAnalytics />
+        <ClientUmamiAnalytics 
+          dryRun={process.env.NODE_ENV === 'development'}
+          debug={process.env.NODE_ENV === 'development'}
+        />
       </body>
     </html>
+  );
+}
+```
+
+#### Pages Router (Legacy)
+
+For Next.js Pages Router, you can use the component directly:
+
+```tsx
+// pages/_app.tsx
+import { UmamiAnalytics } from '@giof/react-umami';
+import type { AppProps } from 'next/app';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <>
+      <Component {...pageProps} />
+      <UmamiAnalytics />
+    </>
   );
 }
 ```
@@ -308,7 +369,7 @@ Test analytics integration without sending real events. Perfect for development,
 Detailed console output for development and troubleshooting. See exactly what's happening under the hood.
 
 ### 🛡️ **SSR Safety** 
-Built-in server-side rendering protection for Next.js, Remix, and other SSR frameworks.
+Built-in server-side rendering protection for Next.js, Remix, and other SSR frameworks. Includes Next.js App Router integration guide.
 
 ### ⚙️ **Runtime Configuration** 
 Override settings dynamically with the `useUmami` hook. Perfect for consent management.
