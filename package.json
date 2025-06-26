@@ -1,6 +1,6 @@
 {
   "name": "@giof-se/umami",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Reusable Umami Analytics component for React applications",
   "keywords": ["umami", "analytics", "react"],
   "license": "MIT",
