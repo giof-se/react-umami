@@ -1,9 +1,17 @@
 {
   "name": "@giof-se/react-umami",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Umami Analytics component for React applications with dry-run testing and debug features",
   "keywords": ["umami", "analytics", "react", "umami-react", "react-umami"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giof-se/react-umami.git"
+  },
+  "homepage": "https://github.com/giof-se/react-umami#readme",
+  "bugs": {
+    "url": "https://github.com/giof-se/react-umami/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist", "README.md"],
@@ -49,7 +57,8 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "pnpm": {
     "ignoredBuiltDependencies": ["esbuild"],
