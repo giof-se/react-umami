@@ -98,17 +98,20 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
           
-          # Use bumpp with the config file (defaults to patch)
-          # Override only if commit indicates otherwise
+          # Determine bump type based on commit message
           COMMIT_MSG=$(git log -1 --pretty=%B)
           if [[ $COMMIT_MSG == *"BREAKING CHANGE"* || $COMMIT_MSG == *"major"* ]]; then
-            pnpm bumpp --major --no-push --no-tag
+            BUMP_TYPE="major"
           elif [[ $COMMIT_MSG == *"feat"* || $COMMIT_MSG == *"feature"* || $COMMIT_MSG == *"minor"* ]]; then
-            pnpm bumpp --minor --no-push --no-tag
+            BUMP_TYPE="minor"
           else
-            # Use default from bumpp.config.ts (patch)
-            pnpm bumpp --no-push --no-tag
+            BUMP_TYPE="patch"
           fi
+          
+          echo "Determined bump type: $BUMP_TYPE"
+          
+          # Use npm version to bump (simpler and more reliable)
+          npm version $BUMP_TYPE --no-git-tag-version
           
           # Get the new version
           NEW_VERSION=$(node -p "require('./package.json').version")
