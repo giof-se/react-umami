@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v2.2.1
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.2.0...v2.2.1)
+
+### 🩹 Fixes
+
+- Resolve linting and formatting issues ([71d66bf](https://github.com/giof-se/react-umami/commit/71d66bf))
+
+### 🏡 Chore
+
+- Update organization name from @giof-se to @giof ([ecaafab](https://github.com/giof-se/react-umami/commit/ecaafab))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.1.0
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.0.4...v2.1.0)
