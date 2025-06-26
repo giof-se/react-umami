@@ -1,7 +1,6 @@
 // src/UmamiAnalytics.tsx
 
-import Script from 'next/script';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface UmamiAnalyticsProps {
   websiteId?: string;
@@ -24,21 +23,49 @@ export const UmamiAnalytics = ({
   domains,
   autoTrack = true,
 }: UmamiAnalyticsProps) => {
-  const finalWebsiteId = websiteId ?? process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  const finalWebsiteId =
+    websiteId ?? process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ?? process.env.REACT_APP_UMAMI_WEBSITE_ID;
   const finalSrc = src ?? 'https://umami.marjala.com/script.js';
 
-  if (!finalWebsiteId) {
-    console.warn('UmamiAnalytics: No websiteId provided.');
-    return null;
-  }
+  useEffect(() => {
+    if (!finalWebsiteId) {
+      console.warn('UmamiAnalytics: No websiteId provided.');
+      return;
+    }
 
-  return (
-    <Script
-      strategy="afterInteractive"
-      src={finalSrc}
-      data-website-id={finalWebsiteId}
-      data-domains={domains?.join(',') || undefined}
-      data-auto-track={autoTrack === false ? 'false' : undefined}
-    />
-  );
+    // Check if script already exists
+    const existingScript = document.querySelector(`script[src="${finalSrc}"]`);
+    if (existingScript) {
+      return;
+    }
+
+    // Create and configure script element
+    const script = document.createElement('script');
+    script.src = finalSrc;
+    script.async = true;
+    script.defer = true;
+    script.setAttribute('data-website-id', finalWebsiteId);
+
+    if (domains && domains.length > 0) {
+      script.setAttribute('data-domains', domains.join(','));
+    }
+
+    if (autoTrack === false) {
+      script.setAttribute('data-auto-track', 'false');
+    }
+
+    // Append script to document head
+    document.head.appendChild(script);
+
+    // Cleanup function to remove script on unmount
+    return () => {
+      const scriptToRemove = document.querySelector(`script[src="${finalSrc}"]`);
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, [finalWebsiteId, finalSrc, domains, autoTrack]);
+
+  // Return null as this component doesn't render any visible content
+  return null;
 };

@@ -39,3 +39,6 @@ pnpm-debug.log*
 .eslintcache
 .cache
 tsconfig.tsbuildinfo
+
+# AI assistant files
+CLAUDE.md

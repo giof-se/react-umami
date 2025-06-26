@@ -1,6 +1,6 @@
-# `@giof-se/umami` – Umami Analytics for Next.js
+# `@giof-se/umami` – Umami Analytics for React
 
-A lightweight and reusable Umami Analytics component for Next.js, making it easy to integrate tracking across projects.
+A lightweight and reusable Umami Analytics component for React applications, making it easy to integrate tracking across projects.
 
 [![CI](https://github.com/giof-se/umami/actions/workflows/ci.yml/badge.svg)](https://github.com/giof-se/umami/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@giof-se/umami.svg)](https://www.npmjs.com/package/@giof-se/umami)
@@ -20,10 +20,26 @@ yarn add @giof-se/umami
 
 ## 📊 Usage
 
-Add the component to your Next.js app's layout or page:
+Add the component to your React application:
 
 ```tsx
-// app/layout.tsx
+// In your main app component or layout
+import { UmamiAnalytics } from '@giof-se/umami';
+
+export default function App() {
+  return (
+    <div>
+      {/* Your app content */}
+      <UmamiAnalytics />
+    </div>
+  );
+}
+```
+
+### Next.js Usage
+
+```tsx
+// app/layout.tsx (App Router)
 import { UmamiAnalytics } from '@giof-se/umami';
 
 export default function RootLayout({ 
@@ -43,6 +59,24 @@ export default function RootLayout({
 }
 ```
 
+### Create React App / Vite Usage
+
+```tsx
+// src/App.tsx
+import { UmamiAnalytics } from '@giof-se/umami';
+
+function App() {
+  return (
+    <div className="App">
+      {/* Your app content */}
+      <UmamiAnalytics />
+    </div>
+  );
+}
+
+export default App;
+```
+
 ## ⚙️ Configuration
 
 ### Environment Variables
@@ -50,8 +84,15 @@ export default function RootLayout({
 Configure your Umami website ID through an environment variable:
 
 ```env
-# .env.local
+# .env.local (Next.js) or .env (Create React App/Vite)
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id-here
+```
+
+**Note**: For Create React App, use `REACT_APP_UMAMI_WEBSITE_ID` instead:
+
+```env
+# .env (Create React App)
+REACT_APP_UMAMI_WEBSITE_ID=your-website-id-here
 ```
 
 ### Props
@@ -74,16 +115,19 @@ You can also configure the component through props:
 | `domains` | `string[]` | `undefined` | Restrict tracking to specific domains |
 | `autoTrack` | `boolean` | `true` | Whether to automatically track page views |
 
+**Note**: The component will automatically detect and use `REACT_APP_UMAMI_WEBSITE_ID` if `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is not available.
+
 ## 🧩 Features
 
-- 🔄 Server Component compatible
-- 🔌 Easy integration with Next.js
+- ⚛️ Framework-agnostic React component
+- 🔌 Easy integration with any React application
 - 🔧 Configurable via props or environment variables
-- 📱 Works with App Router
-- 🧠 Smart defaults
+- 📱 Works with Next.js, Create React App, Vite, and more
+- 🧠 Smart defaults and duplicate script prevention
 - 🪶 Lightweight with zero dependencies
 - 🔒 Domain restriction support
 - 🎛️ Fine-grained tracking control
+- 🔄 Automatic cleanup on component unmount
 
 ## 🛠️ Development
 
