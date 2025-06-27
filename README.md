@@ -4,6 +4,11 @@ A React component for Umami Analytics with **built-in dry-run testing**, debug l
 
 > 🧪 **Features dry-run mode for clean development** - test your tracking without polluting production data!
 
+## 📦 Bundle Size
+
+- **Your bundle impact**: ~2.6 kB (minified + gzipped)
+- **npm package size**: 26.8 kB (includes documentation - not bundled into your app)
+
 [![CI](https://github.com/giof-se/umami/actions/workflows/ci.yml/badge.svg)](https://github.com/giof-se/umami/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@giof/react-umami.svg)](https://www.npmjs.com/package/@giof/react-umami)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
