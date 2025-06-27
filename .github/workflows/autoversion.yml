@@ -79,18 +79,6 @@ jobs:
       - name: Run Validation
         run: pnpm validate
 
-
-
-      - name: Generate Changelog
-        run: |
-          # Generate the full changelog (without --release to prevent auto-commit)
-          pnpm changelogen --output CHANGELOG.md
-          
-          # Display the changelog content for debugging
-          echo "--- CHANGELOG.md Content ---"
-          cat CHANGELOG.md
-          echo "----------------------------"
-
       - name: Determine New Version
         id: new_version
         run: |
@@ -123,6 +111,16 @@ jobs:
             echo "::error::Version was not bumped. Current and new versions are the same: $CURRENT_VERSION"
             exit 1
           fi
+
+      - name: Generate Changelog
+        run: |
+          # Generate the changelog AFTER version bump so it knows the correct version
+          pnpm changelogen --output CHANGELOG.md
+          
+          # Display the changelog content for debugging
+          echo "--- CHANGELOG.md Content ---"
+          cat CHANGELOG.md
+          echo "----------------------------"
 
       - name: Update package.json and CHANGELOG
         run: |
