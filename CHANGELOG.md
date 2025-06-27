@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.6.0
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.5.2...v2.6.0)
+
+### 🚀 Enhancements
+
+- Optimize bundle size with tsup configuration ([f3ce575](https://github.com/giof-se/react-umami/commit/f3ce575))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.5.1
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.5.0...v2.5.1)
