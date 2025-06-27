@@ -1,7 +1,6 @@
 // src/UmamiAnalytics.tsx
 
 import { useEffect } from 'react';
-import './types';
 import type { UmamiEventData } from './types';
 
 interface UmamiAnalyticsProps {
