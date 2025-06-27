@@ -112,30 +112,8 @@ jobs:
             exit 1
           fi
 
-      - name: Generate Changelog
-        run: |
-          # Generate the changelog AFTER version bump so it knows the correct version
-          pnpm changelogen --output CHANGELOG.md
-          
-          # Display the changelog content for debugging
-          echo "--- CHANGELOG.md Content ---"
-          cat CHANGELOG.md
-          echo "----------------------------"
-
-      - name: Update package.json and CHANGELOG
-        run: |
-          git add package.json CHANGELOG.md
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git commit -m "release: v${{ steps.new_version.outputs.NEW_VERSION }}"
-
-      - name: Push Changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
-
-      - name: Create Tag
+      - name: Create Tag (before changelog generation)
+        id: create_tag
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -186,6 +164,66 @@ jobs:
               console.log(`✅ Successfully created tag ${tagName}`);
             } catch (error) {
               console.error(`Error creating tag: ${error.message}`);
+              console.error(JSON.stringify(error));
+              throw error;
+            }
+
+      - name: Generate Changelog
+        run: |
+          # Generate the changelog AFTER tag creation so changelogen sees the new tag
+          pnpm changelogen --output CHANGELOG.md
+          
+          # Display the changelog content for debugging
+          echo "--- CHANGELOG.md Content ---"
+          cat CHANGELOG.md
+          echo "----------------------------"
+
+      - name: Update package.json and CHANGELOG
+        run: |
+          git add package.json CHANGELOG.md
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git commit -m "release: v${{ steps.new_version.outputs.NEW_VERSION }}"
+
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+      - name: Update Tag to Point to Final Commit
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const version = "${{ steps.new_version.outputs.NEW_VERSION }}";
+            const tagName = `v${version}`;
+            
+            try {
+              console.log(`Updating tag ${tagName} to point to final commit...`);
+              
+              // Get the current commit SHA (after changelog commit)
+              const { data: refData } = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'heads/main',
+              });
+              const finalSha = refData.object.sha;
+              
+              console.log(`Final commit SHA: ${finalSha}`);
+              
+              // Update the existing tag reference to point to the final commit
+              const { data: updateResult } = await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${tagName}`,
+                sha: finalSha,
+                force: true
+              });
+              
+              console.log(`✅ Successfully updated tag ${tagName} to final commit`);
+            } catch (error) {
+              console.error(`Error updating tag: ${error.message}`);
               console.error(JSON.stringify(error));
               throw error;
             } 
