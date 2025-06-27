@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.6.11
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.9...v2.6.11)
+
+### 🩹 Fixes
+
+- fix: use changelogen with explicit from/to parameters ([ee75757](https://github.com/giof-se/react-umami/commit/ee757576ce6abdf2c5aff96387e593b50e4e7348))
+- release: v2.6.10 ([9282b37](https://github.com/giof-se/react-umami/commit/9282b37a2f87a90ac6e70c19176966252e90c444))
+- fix: revert to manual changelog generation with proper version headers ([c882ebf](https://github.com/giof-se/react-umami/commit/c882ebfa5b35e8d46bd90380ba01f56165b6fc3e))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 
 ## v2.6.9
 
