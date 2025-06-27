@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v2.6.5...main
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.5...main)
+
+### 🩹 Fixes
+
+- Prevent changelogen auto-commit causing duplicate releases ([2b9aa39](https://github.com/giof-se/react-umami/commit/2b9aa39))
+
+### ✅ Tests
+
+- Fix autoversion condition syntax ([5bf47db](https://github.com/giof-se/react-umami/commit/5bf47db))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.6.4
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.6.3...v2.6.4)
