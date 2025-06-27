@@ -170,12 +170,42 @@ jobs:
 
       - name: Generate Changelog
         run: |
-          # Generate the changelog AFTER tag creation so changelogen sees the new tag
-          pnpm changelogen --output CHANGELOG.md
+          # Manual changelog generation since changelogen doesn't work with our workflow
+          NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
+          
+          # Get the previous version tag
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2 | tail -1)
+          echo "Previous tag: $PREV_TAG"
+          echo "New version: v$NEW_VERSION"
+          
+          # Create temporary changelog entry
+          cat > temp_changelog.md << EOF
+          # Changelog
+          
+          
+          ## v$NEW_VERSION
+          
+          [compare changes](https://github.com/giof-se/react-umami/compare/$PREV_TAG...v$NEW_VERSION)
+          
+          ### 🩹 Fixes
+          
+          - $(git log --format="%s" -1 HEAD | sed 's/^[a-z]*: //')
+          
+          ### ❤️ Contributors
+          
+          - Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+          
+          EOF
+          
+          # Get everything after the first "## v" line from current changelog
+          sed -n '/^## v/,$p' CHANGELOG.md >> temp_changelog.md
+          
+          # Replace the changelog
+          mv temp_changelog.md CHANGELOG.md
           
           # Display the changelog content for debugging
           echo "--- CHANGELOG.md Content ---"
-          cat CHANGELOG.md
+          head -20 CHANGELOG.md
           echo "----------------------------"
 
       - name: Update package.json and CHANGELOG
