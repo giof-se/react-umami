@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.6.4
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.3...v2.6.4)
+
+### 🩹 Fixes
+
+- Remove tag trigger from publish workflow ([12e9d66](https://github.com/giof-se/react-umami/commit/12e9d66))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.6.2
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.6.1...v2.6.2)
