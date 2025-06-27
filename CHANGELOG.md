@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.6.2
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.1...v2.6.2)
+
+### 🩹 Fixes
+
+- Prevent duplicate releases and clarify bundle size ([92be656](https://github.com/giof-se/react-umami/commit/92be656))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.6.0
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.5.2...v2.6.0)
