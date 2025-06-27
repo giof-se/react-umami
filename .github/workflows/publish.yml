@@ -1,12 +1,8 @@
 name: Publish Package
 
 on:
-  # Keep the tag trigger for direct tag pushes
-  push:
-    tags:
-      - "v*" # Runs when a new version tag (e.g., v1.0.0) is pushed
-  
-  # Add workflow_dispatch to allow manual triggering
+  # Removed tag trigger to prevent duplicate releases with trigger-publish.yml
+  # Manual workflow_dispatch only (triggered by trigger-publish.yml)
   workflow_dispatch:
     inputs:
       version:
