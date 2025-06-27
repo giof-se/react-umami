@@ -170,7 +170,7 @@ jobs:
 
       - name: Generate Changelog
         run: |
-          # Manual changelog generation since changelogen doesn't work with our workflow
+          # Try changelogen with explicit version parameters
           NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
           
           # Get the previous version tag
@@ -178,30 +178,8 @@ jobs:
           echo "Previous tag: $PREV_TAG"
           echo "New version: v$NEW_VERSION"
           
-          # Create temporary changelog entry
-          cat > temp_changelog.md << EOF
-          # Changelog
-          
-          
-          ## v$NEW_VERSION
-          
-          [compare changes](https://github.com/giof-se/react-umami/compare/$PREV_TAG...v$NEW_VERSION)
-          
-          ### 🩹 Fixes
-          
-          - $(git log --format="%s" -1 HEAD | sed 's/^[a-z]*: //')
-          
-          ### ❤️ Contributors
-          
-          - Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
-          
-          EOF
-          
-          # Get everything after the first "## v" line from current changelog
-          sed -n '/^## v/,$p' CHANGELOG.md >> temp_changelog.md
-          
-          # Replace the changelog
-          mv temp_changelog.md CHANGELOG.md
+          # Try changelogen with explicit from/to parameters
+          pnpm changelogen --output CHANGELOG.md --from $PREV_TAG --to v$NEW_VERSION
           
           # Display the changelog content for debugging
           echo "--- CHANGELOG.md Content ---"
