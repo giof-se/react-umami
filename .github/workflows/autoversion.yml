@@ -170,7 +170,7 @@ jobs:
 
       - name: Generate Changelog
         run: |
-          # Try changelogen with explicit version parameters
+          # Manual changelog generation since changelogen doesn't support version headers
           NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
           
           # Get the previous version tag
@@ -178,8 +178,36 @@ jobs:
           echo "Previous tag: $PREV_TAG"
           echo "New version: v$NEW_VERSION"
           
-          # Try changelogen with explicit from/to parameters
-          pnpm changelogen --output CHANGELOG.md --from $PREV_TAG --to v$NEW_VERSION
+          # Get commits between previous tag and current commit
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s ([%h](https://github.com/giof-se/react-umami/commit/%H))" ${PREV_TAG}..HEAD --reverse)
+          else
+            COMMITS=$(git log --pretty=format:"- %s ([%h](https://github.com/giof-se/react-umami/commit/%H))" --reverse)
+          fi
+          
+          # Create new changelog entry
+          echo "# Changelog" > temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "## v$NEW_VERSION" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "[compare changes](https://github.com/giof-se/react-umami/compare/${PREV_TAG}...v$NEW_VERSION)" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "### 🩹 Fixes" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "$COMMITS" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "### ❤️ Contributors" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+          
+          # Append existing changelog (excluding the header)
+          if [ -f CHANGELOG.md ]; then
+            tail -n +3 CHANGELOG.md >> temp_changelog.md
+          fi
+          
+          # Replace the original changelog
+          mv temp_changelog.md CHANGELOG.md
           
           # Display the changelog content for debugging
           echo "--- CHANGELOG.md Content ---"
