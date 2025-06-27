@@ -12,7 +12,7 @@ permissions:
 jobs:
   autoversion:
     runs-on: ubuntu-latest
-    if: false  # TEMPORARILY DISABLED TO TEST DUPLICATE RELEASE FIX
+    if: ${{ !contains(github.event.head_commit.message, 'release:') && !contains(github.event.head_commit.message, 'chore(release):') }}
     
     steps:
       - name: Checkout Repository
@@ -83,8 +83,8 @@ jobs:
 
       - name: Generate Changelog
         run: |
-          # Generate the full changelog
-          pnpm changelogen --output CHANGELOG.md --release
+          # Generate the full changelog (without --release to prevent auto-commit)
+          pnpm changelogen --output CHANGELOG.md
           
           # Display the changelog content for debugging
           echo "--- CHANGELOG.md Content ---"
