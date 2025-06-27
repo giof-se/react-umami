@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.6.7...main
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.7...main)
+
+### 🩹 Fixes
+
+- Create tag before changelog generation for proper version headers ([15e5d1e](https://github.com/giof-se/react-umami/commit/15e5d1e))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.6.6...main
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.6.6...main)
