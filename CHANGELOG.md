@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.6.6...main
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.6...main)
+
+### 🩹 Fixes
+
+- Generate changelog after version bump for correct version headers ([87290f8](https://github.com/giof-se/react-umami/commit/87290f8))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.6.5...main
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.6.5...main)
