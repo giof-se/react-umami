@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react';
 import type { UmamiEventData } from './types';
-import { isUmamiLoaded, trackEvent, trackPageView } from './utils';
+import { identify as identifyUser, isUmamiLoaded, trackEvent, trackPageView } from './utils';
 
 export interface UmamiConfig {
   websiteId?: string;
@@ -59,6 +59,22 @@ export const useUmami = () => {
   }, []);
 
   /**
+   * Identify the user
+   */
+  const identify = useCallback((idOrData: string | object, data?: object) => {
+    if (configRef.current.dryRun) {
+      console.log('UmamiAnalytics [DRY RUN]: Would identify user:', idOrData, data);
+      return;
+    }
+
+    if (configRef.current.debug) {
+      console.log('UmamiAnalytics: Identifying user:', idOrData, data);
+    }
+
+    identifyUser(idOrData, data);
+  }, []);
+
+  /**
    * Check if Umami is loaded
    */
   const isLoaded = useCallback(() => {
@@ -68,6 +84,7 @@ export const useUmami = () => {
   return {
     track,
     trackPage,
+    identify,
     isLoaded,
     updateConfig,
     config: configRef.current,
