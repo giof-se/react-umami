@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.7.2
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.7.0...v2.7.2)
+
+### 🩹 Fixes
+
+- release: v2.7.1 ([b4c69df](https://github.com/giof-se/react-umami/commit/b4c69dfc75da35c9dd95c23981851508d833f77b))
+- docs: update changelog for v2.7.1 ([f42fd84](https://github.com/giof-se/react-umami/commit/f42fd84c47b939eb3336f559b119646fa7414cb9))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.7.1...v2.7.1
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.7.1...v2.7.1)
