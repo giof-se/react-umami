@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.7.0
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.6.11...v2.7.0)
+
+### 🩹 Fixes
+
+- docs: clean up changelog headers and fix repository URLs ([4e22f6e](https://github.com/giof-se/react-umami/commit/4e22f6e1bd95ce4b5bd14e6679c29f465863df21))
+- release: v2.6.12 ([0490965](https://github.com/giof-se/react-umami/commit/0490965725ba00abfa4cc8a826e2a7ab073a764f))
+- feat: add identify and fix track types ([a212d51](https://github.com/giof-se/react-umami/commit/a212d5111e08fa15283c9dd39bf0f03aa6017ecf))
+- Merge pull request #1 from Ghosty920/feat/identify-function ([8f00d47](https://github.com/giof-se/react-umami/commit/8f00d47634fc93f4d0586ac671627fb1ded179b0))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.6.12
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.6.10...v2.6.12)
