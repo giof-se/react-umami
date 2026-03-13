@@ -1,7 +1,7 @@
 // src/UmamiAnalytics.tsx
 
 import { useEffect } from 'react';
-import type { UmamiEventData } from './types';
+import type { UmamiCustomEventFunction, UmamiEventData, UmamiTrackedProperties } from './types';
 
 interface UmamiAnalyticsProps {
   websiteId?: string;
@@ -79,8 +79,17 @@ export const UmamiAnalytics = ({
 
       if (!window.umami) {
         window.umami = {
-          track: (eventName: string, eventData?: UmamiEventData) => {
+          track: (
+            eventName?: string | UmamiTrackedProperties | UmamiCustomEventFunction,
+            eventData?: UmamiEventData,
+          ) => {
+            if (typeof eventName === 'function' || typeof eventName === 'object' || !eventName) {
+              console.log('UmamiAnalytics [DRY RUN]: Would track page view:', eventName);
+            }
             console.log('UmamiAnalytics [DRY RUN]: Would track event:', eventName, eventData);
+          },
+          identify: (idOrData: string | object, data?: object) => {
+            console.log('UmamiAnalytics [DRY RUN]: Would identify user:', idOrData, data);
           },
         };
       }

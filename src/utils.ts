@@ -51,6 +51,24 @@ export const trackPageView = (path?: string, title?: string): void => {
   window.umami.track('pageview', eventData);
 };
 
+export const identify = (idOrData: string | object, data?: object): void => {
+  if (typeof window === 'undefined') {
+    console.warn('identify: Not in browser environment');
+    return;
+  }
+
+  if (!window.umami) {
+    console.warn('identify: Umami not loaded yet');
+    return;
+  }
+
+  if (typeof idOrData === 'string') {
+    window.umami.identify(idOrData, data);
+  } else {
+    window.umami.identify(idOrData);
+  }
+};
+
 /**
  * Check if Umami tracker is loaded and available
  */

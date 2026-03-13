@@ -1,7 +1,7 @@
 // tests/utils.test.ts
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getUmami, isUmamiLoaded, trackEvent, trackPageView } from '../src/utils';
+import { getUmami, identify, isUmamiLoaded, trackEvent, trackPageView } from '../src/utils';
 
 describe('Utils', () => {
   beforeEach(() => {
@@ -12,8 +12,9 @@ describe('Utils', () => {
 
   describe('trackEvent', () => {
     it('tracks event when umami is loaded', () => {
-      const mockTrack = vi.fn();
-      window.umami = { track: mockTrack };
+      const mockTrack = vi.fn(),
+        mockIdentify = vi.fn();
+      window.umami = { track: mockTrack, identify: mockIdentify };
 
       trackEvent('test_event', { param: 'value' });
 
@@ -44,8 +45,9 @@ describe('Utils', () => {
 
   describe('trackPageView', () => {
     it('tracks page view with path and title', () => {
-      const mockTrack = vi.fn();
-      window.umami = { track: mockTrack };
+      const mockTrack = vi.fn(),
+        mockIdentify = vi.fn();
+      window.umami = { track: mockTrack, identify: mockIdentify };
 
       trackPageView('/test', 'Test Page');
 
@@ -53,8 +55,9 @@ describe('Utils', () => {
     });
 
     it('tracks page view with empty data when no params provided', () => {
-      const mockTrack = vi.fn();
-      window.umami = { track: mockTrack };
+      const mockTrack = vi.fn(),
+        mockIdentify = vi.fn();
+      window.umami = { track: mockTrack, identify: mockIdentify };
 
       trackPageView();
 
@@ -83,9 +86,42 @@ describe('Utils', () => {
     });
   });
 
+  describe('identify', () => {
+    it('identifies user when umami is loaded', () => {
+      const mockTrack = vi.fn(),
+        mockIdentify = vi.fn();
+      window.umami = { track: mockTrack, identify: mockIdentify };
+
+      identify('test_user', { name: 'Test User' });
+
+      expect(mockIdentify).toHaveBeenCalledWith('test_user', { name: 'Test User' });
+    });
+
+    it('warns when umami is not loaded', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      identify('test_user');
+
+      expect(consoleSpy).toHaveBeenCalledWith('identify: Umami not loaded yet');
+      consoleSpy.mockRestore();
+    });
+
+    it('warns in server environment', () => {
+      const originalWindow = global.window;
+      (global as { window?: unknown }).window = undefined;
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      identify('test_user');
+
+      expect(consoleSpy).toHaveBeenCalledWith('identify: Not in browser environment');
+      consoleSpy.mockRestore();
+      global.window = originalWindow;
+    });
+  });
+
   describe('isUmamiLoaded', () => {
     it('returns true when umami is loaded', () => {
-      window.umami = { track: vi.fn() };
+      window.umami = { track: vi.fn(), identify: vi.fn() };
 
       expect(isUmamiLoaded()).toBe(true);
     });
@@ -106,7 +142,7 @@ describe('Utils', () => {
 
   describe('getUmami', () => {
     it('returns umami instance when available', () => {
-      const mockUmami = { track: vi.fn() };
+      const mockUmami = { track: vi.fn(), identify: vi.fn() };
       window.umami = mockUmami;
 
       expect(getUmami()).toBe(mockUmami);
