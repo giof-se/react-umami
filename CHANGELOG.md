@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.1...v2.7.1
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.7.1...v2.7.1)
+
 ## v2.7.0
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.6.11...v2.7.0)
