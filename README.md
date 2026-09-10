@@ -72,6 +72,7 @@ interface ClientUmamiAnalyticsProps {
   websiteId?: string;
   src?: string;
   domains?: string[];
+  tag?: string;
   autoTrack?: boolean;
   dryRun?: boolean;
   debug?: boolean;
@@ -155,6 +156,7 @@ Configure your Umami analytics through environment variables:
 # Universal (works with all frameworks - server-side and build-time)
 UMAMI_WEBSITE_ID=your-website-id-here
 UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
+UMAMI_TAG=your-property-tag-here
 ```
 
 **Framework-specific client-side variables** (required for browser access):
@@ -163,10 +165,12 @@ UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
 # Next.js (client-side access requires NEXT_PUBLIC_ prefix)
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id-here
 NEXT_PUBLIC_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
+NEXT_PUBLIC_UMAMI_TAG=your-property-tag-here
 
 # Create React App (client-side access requires REACT_APP_ prefix)
 REACT_APP_UMAMI_WEBSITE_ID=your-website-id-here
 REACT_APP_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
+REACT_APP_UMAMI_TAG=your-property-tag-here
 ```
 
 **💡 Pro Tip:** For Next.js, you can use both! Use `UMAMI_*` for server-side and `NEXT_PUBLIC_UMAMI_*` for client-side access.
@@ -184,6 +188,11 @@ The component will check environment variables in this order:
 3. `REACT_APP_UMAMI_SCRIPT_URL` (Create React App)
 4. `https://cloud.umami.is/script.js` (default fallback)
 
+**Tag:**
+1. `UMAMI_TAG` (recommended - works everywhere)
+2. `NEXT_PUBLIC_UMAMI_TAG` (Next.js)
+3. `REACT_APP_UMAMI_TAG` (Create React App)
+
 ### Props
 
 You can also configure the component through props:
@@ -193,6 +202,7 @@ You can also configure the component through props:
   websiteId="your-website-id" 
   src="https://your-umami-instance.com/script.js"
   domains={['example.com', 'www.example.com']}
+  tag="marketing-site"
   autoTrack={false}
 />
 ```
@@ -202,6 +212,7 @@ You can also configure the component through props:
 | `websiteId` | `string` | `process.env.UMAMI_WEBSITE_ID` | Your Umami website ID |
 | `src` | `string` | `process.env.UMAMI_SCRIPT_URL` or `https://cloud.umami.is/script.js` | The URL of your Umami script |
 | `domains` | `string[]` | `undefined` | Restrict tracking to specific domains |
+| `tag` | `string` | `process.env.UMAMI_TAG` | Tag events so multiple properties can share one website ID |
 | `autoTrack` | `boolean` | `true` | Whether to automatically track page views |
 | `dryRun` | `boolean` | `false` | **🧪 Enable dry run mode** - no real events sent to Umami |
 | `debug` | `boolean` | `false` | **🔍 Enable debug logging** - detailed console output |
