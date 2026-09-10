@@ -16,6 +16,9 @@ describe('UmamiAnalytics', () => {
     process.env.UMAMI_SCRIPT_URL = undefined;
     process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL = undefined;
     process.env.REACT_APP_UMAMI_SCRIPT_URL = undefined;
+    process.env.UMAMI_TAG = undefined;
+    process.env.NEXT_PUBLIC_UMAMI_TAG = undefined;
+    process.env.REACT_APP_UMAMI_TAG = undefined;
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     // Clear any existing scripts from previous tests
     document.head.innerHTML = '';
@@ -110,6 +113,55 @@ describe('UmamiAnalytics', () => {
     const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
     expect(scriptElement?.getAttribute('data-auto-track')).toBeNull();
+  });
+
+  it('adds a tag when the tag prop is provided', () => {
+    render(<UmamiAnalytics websiteId="test-id" tag="marketing-site" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-tag')).toBe('marketing-site');
+  });
+
+  it('does not add data-tag when no tag is provided', () => {
+    render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-tag')).toBeNull();
+  });
+
+  it('uses UMAMI_TAG environment variable with highest priority', () => {
+    process.env.UMAMI_TAG = 'universal-tag';
+    process.env.NEXT_PUBLIC_UMAMI_TAG = 'next-tag';
+    process.env.REACT_APP_UMAMI_TAG = 'cra-tag';
+
+    render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-tag')).toBe('universal-tag');
+  });
+
+  it('falls back to NEXT_PUBLIC_UMAMI_TAG when UMAMI_TAG is not set', () => {
+    process.env.NEXT_PUBLIC_UMAMI_TAG = 'next-tag';
+    process.env.REACT_APP_UMAMI_TAG = 'cra-tag';
+
+    render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-tag')).toBe('next-tag');
+  });
+
+  it('falls back to REACT_APP_UMAMI_TAG when others are not set', () => {
+    process.env.REACT_APP_UMAMI_TAG = 'cra-tag';
+
+    render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement).not.toBeNull();
+    expect(scriptElement?.getAttribute('data-tag')).toBe('cra-tag');
   });
 
   it('does not inject duplicate scripts', () => {

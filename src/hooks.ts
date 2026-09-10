@@ -8,6 +8,7 @@ export interface UmamiConfig {
   websiteId?: string;
   src?: string;
   domains?: string[];
+  tag?: string;
   autoTrack?: boolean;
   dryRun?: boolean;
   debug?: boolean;

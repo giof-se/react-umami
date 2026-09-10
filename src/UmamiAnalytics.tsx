@@ -12,6 +12,12 @@ interface UmamiAnalyticsProps {
    */
   domains?: string[];
   /**
+   * Tags all events collected by this script, so multiple properties can share
+   * a single website ID and still be reported separately
+   * @example 'marketing-site'
+   */
+  tag?: string;
+  /**
    * Whether to automatically track page views
    * @default true
    */
@@ -32,6 +38,7 @@ export const UmamiAnalytics = ({
   websiteId,
   src,
   domains,
+  tag,
   autoTrack = true,
   dryRun = false,
   debug = false,
@@ -49,6 +56,12 @@ export const UmamiAnalytics = ({
     process.env.REACT_APP_UMAMI_SCRIPT_URL ??
     'https://cloud.umami.is/script.js';
 
+  const finalTag =
+    tag ??
+    process.env.UMAMI_TAG ??
+    process.env.NEXT_PUBLIC_UMAMI_TAG ??
+    process.env.REACT_APP_UMAMI_TAG;
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Analytics script should only be injected once on mount, not re-injected when props change
   useEffect(() => {
     // SSR safety
@@ -65,6 +78,7 @@ export const UmamiAnalytics = ({
         websiteId: finalWebsiteId,
         src: finalSrc,
         domains,
+        tag: finalTag,
         autoTrack,
         dryRun,
         debug,
@@ -117,6 +131,10 @@ export const UmamiAnalytics = ({
 
     if (domains?.length) {
       script.setAttribute('data-domains', domains.join(','));
+    }
+
+    if (finalTag) {
+      script.setAttribute('data-tag', finalTag);
     }
 
     if (!autoTrack) {
