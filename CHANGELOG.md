@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.8.0
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.7.1...v2.8.0)
+
+### 🩹 Fixes
+
+- docs: update changelog for v2.7.1 ([f42fd84](https://github.com/giof-se/react-umami/commit/f42fd84c47b939eb3336f559b119646fa7414cb9))
+- release: v2.7.2 ([6fda32d](https://github.com/giof-se/react-umami/commit/6fda32dd1115c280efb3b3ac4c9a33b0cb742661))
+- feat: support Umami data-tag attribute ([02593a4](https://github.com/giof-se/react-umami/commit/02593a46183bb66c1e576fb1e1161fe06e9e62b7))
+- Merge pull request #2 from giof-se/feat/tag-attribute ([2120174](https://github.com/giof-se/react-umami/commit/21201745d1908a8a8e9954103db90d32b41aa50e))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.7.2
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.7.0...v2.7.2)
