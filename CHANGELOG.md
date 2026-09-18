@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.9.1
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.8.1...v2.9.1)
+
+### 🩹 Fixes
+
+- feat: expose Umami tracker options including Web Vitals and beforeSend ([8c66259](https://github.com/giof-se/react-umami/commit/8c66259134d3a7d3061f7079e44abc178dbab7ed))
+- Merge branch 'main' into feat/tracker-options ([540121c](https://github.com/giof-se/react-umami/commit/540121c2cc1b2f294b91fe5ad96aeaf34b02b205))
+- Merge pull request #3 from giof-se/feat/tracker-options ([65d8ed4](https://github.com/giof-se/react-umami/commit/65d8ed49682841654ffe4198702823c5f22fae06))
+- release: v2.9.0 ([c906b81](https://github.com/giof-se/react-umami/commit/c906b81cfb85fcba8e44a6da16be2a62dcfbff78))
+- fix: document the beforeSend consent gate and quiet helper warnings ([86046d8](https://github.com/giof-se/react-umami/commit/86046d8f1e2d878de406dbfe905a638e19cdb8c7))
+- Merge pull request #5 from giof-se/fix/consent-docs-and-warnings ([49f51d1](https://github.com/giof-se/react-umami/commit/49f51d16ad8c9a102f2d09658113817102058ca0))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.9.0
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.8.0...v2.9.0)
