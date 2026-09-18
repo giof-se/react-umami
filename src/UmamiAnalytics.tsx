@@ -1,6 +1,7 @@
 // src/UmamiAnalytics.tsx
 
 import { useEffect, useRef } from 'react';
+import { setDebugWarnings } from './debug';
 import type {
   UmamiBeforeSend,
   UmamiCustomEventFunction,
@@ -142,6 +143,10 @@ export const UmamiAnalytics = ({
     // SSR safety
     if (typeof window === 'undefined') return;
 
+    if (debug) {
+      setDebugWarnings(true);
+    }
+
     // Must have website ID
     if (!finalWebsiteId) {
       console.warn('UmamiAnalytics: No websiteId provided.');
@@ -169,7 +174,9 @@ export const UmamiAnalytics = ({
       });
     }
 
-    // Registered before the duplicate-script check so a remount replaces the stale callback
+    // Registered before the duplicate-script check so a remount replaces the stale callback.
+    // Never remove it (e.g. on unmount): once loaded, the tracker keeps sending pageviews from
+    // its history hooks, and consumers rely on beforeSend to drop them after consent is revoked.
     if (beforeSend) {
       const beforeSendGlobal: UmamiBeforeSend = (type, payload) =>
         beforeSendRef.current ? beforeSendRef.current(type, payload) : payload;

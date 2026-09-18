@@ -1,13 +1,26 @@
 // tests/utils.test.ts
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { setDebugWarnings } from '../src/debug';
 import { getUmami, identify, isUmamiLoaded, trackEvent, trackPageView } from '../src/utils';
 
 describe('Utils', () => {
   beforeEach(() => {
     // Clear window.umami before each test
     (window as { umami?: unknown }).umami = undefined;
+    setDebugWarnings(false);
     vi.clearAllMocks();
+  });
+
+  it('does not warn when umami is not loaded outside debug mode', () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    trackEvent('test_event');
+    trackPageView('/test');
+    identify('test_user');
+
+    expect(consoleSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   describe('trackEvent', () => {
@@ -21,7 +34,8 @@ describe('Utils', () => {
       expect(mockTrack).toHaveBeenCalledWith('test_event', { param: 'value' });
     });
 
-    it('warns when umami is not loaded', () => {
+    it('warns when umami is not loaded in debug mode', () => {
+      setDebugWarnings(true);
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       trackEvent('test_event');
@@ -30,7 +44,8 @@ describe('Utils', () => {
       consoleSpy.mockRestore();
     });
 
-    it('warns in server environment', () => {
+    it('warns in server environment in debug mode', () => {
+      setDebugWarnings(true);
       const originalWindow = global.window;
       (global as { window?: unknown }).window = undefined;
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -64,7 +79,8 @@ describe('Utils', () => {
       expect(mockTrack).toHaveBeenCalledWith('pageview', {});
     });
 
-    it('warns when umami is not loaded', () => {
+    it('warns when umami is not loaded in debug mode', () => {
+      setDebugWarnings(true);
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       trackPageView('/test');
@@ -73,7 +89,8 @@ describe('Utils', () => {
       consoleSpy.mockRestore();
     });
 
-    it('warns in server environment', () => {
+    it('warns in server environment in debug mode', () => {
+      setDebugWarnings(true);
       const originalWindow = global.window;
       (global as { window?: unknown }).window = undefined;
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -97,7 +114,8 @@ describe('Utils', () => {
       expect(mockIdentify).toHaveBeenCalledWith('test_user', { name: 'Test User' });
     });
 
-    it('warns when umami is not loaded', () => {
+    it('warns when umami is not loaded in debug mode', () => {
+      setDebugWarnings(true);
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       identify('test_user');
@@ -106,7 +124,8 @@ describe('Utils', () => {
       consoleSpy.mockRestore();
     });
 
-    it('warns in server environment', () => {
+    it('warns in server environment in debug mode', () => {
+      setDebugWarnings(true);
       const originalWindow = global.window;
       (global as { window?: unknown }).window = undefined;
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

@@ -2,8 +2,10 @@
 
 import { render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { setDebugWarnings } from '../src/debug';
 import type { UmamiBeforeSend } from '../src/types';
 import { UMAMI_BEFORE_SEND_GLOBAL, UmamiAnalytics } from '../src/UmamiAnalytics';
+import { trackEvent } from '../src/utils';
 
 const getBeforeSendGlobal = () =>
   (window as unknown as Record<string, unknown>)[UMAMI_BEFORE_SEND_GLOBAL] as
@@ -30,6 +32,7 @@ describe('UmamiAnalytics', () => {
     document.head.innerHTML = '';
     window.umami = undefined;
     (window as unknown as Record<string, unknown>)[UMAMI_BEFORE_SEND_GLOBAL] = undefined;
+    setDebugWarnings(false);
   });
 
   afterEach(() => {
@@ -370,6 +373,31 @@ describe('UmamiAnalytics', () => {
     getBeforeSendGlobal()?.('event', { name: 'signup' });
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledWith('event', { name: 'signup' });
+  });
+
+  it('keeps the beforeSend gate registered after unmount', () => {
+    // Consent gates rely on this: the loaded tracker keeps sending pageviews after the
+    // component unmounts, so the global must stay and keep calling the last callback
+    let consented = true;
+    const dropIfDeclined: UmamiBeforeSend = (_type, payload) => (consented ? payload : null);
+
+    const { unmount } = render(<UmamiAnalytics websiteId="test-id" beforeSend={dropIfDeclined} />);
+    unmount();
+    consented = false;
+
+    expect(document.querySelector('script[data-before-send]')).not.toBeNull();
+    expect(getBeforeSendGlobal()?.('event', { name: 'pageview' })).toBeNull();
+  });
+
+  it('enables the helper not-loaded warnings when debug=true', () => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    trackEvent('before_mount');
+    expect(console.warn).not.toHaveBeenCalledWith('trackEvent: Umami not loaded yet');
+
+    render(<UmamiAnalytics websiteId="test-id" debug={true} />);
+    trackEvent('after_mount');
+    expect(console.warn).toHaveBeenCalledWith('trackEvent: Umami not loaded yet');
   });
 
   it('runs beforeSend in dry run mode and logs the payload it returns', async () => {
