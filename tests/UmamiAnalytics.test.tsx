@@ -2,7 +2,13 @@
 
 import { render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { UmamiAnalytics } from '../src/UmamiAnalytics';
+import type { UmamiBeforeSend } from '../src/types';
+import { UMAMI_BEFORE_SEND_GLOBAL, UmamiAnalytics } from '../src/UmamiAnalytics';
+
+const getBeforeSendGlobal = () =>
+  (window as unknown as Record<string, unknown>)[UMAMI_BEFORE_SEND_GLOBAL] as
+    | UmamiBeforeSend
+    | undefined;
 
 describe('UmamiAnalytics', () => {
   const originalEnv = process.env;
@@ -20,8 +26,10 @@ describe('UmamiAnalytics', () => {
     process.env.NEXT_PUBLIC_UMAMI_TAG = undefined;
     process.env.REACT_APP_UMAMI_TAG = undefined;
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    // Clear any existing scripts from previous tests
+    // Clear any existing scripts and tracker globals from previous tests
     document.head.innerHTML = '';
+    window.umami = undefined;
+    (window as unknown as Record<string, unknown>)[UMAMI_BEFORE_SEND_GLOBAL] = undefined;
   });
 
   afterEach(() => {
@@ -272,5 +280,139 @@ describe('UmamiAnalytics', () => {
     const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
     expect(scriptElement).not.toBeNull();
     expect(scriptElement?.getAttribute('data-website-id')).toBe('test-id');
+  });
+
+  it('passes tracker options through as data attributes', () => {
+    render(
+      <UmamiAnalytics
+        websiteId="test-id"
+        autoPageview={false}
+        performance={true}
+        hostUrl="https://collect.example.com"
+        tag="variant-b"
+        excludeSearch={true}
+        excludeHash={true}
+        doNotTrack={true}
+        distinctId="user-123"
+        fetchCredentials="include"
+      />,
+    );
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement?.getAttribute('data-auto-pageview')).toBe('false');
+    expect(scriptElement?.getAttribute('data-performance')).toBe('true');
+    expect(scriptElement?.getAttribute('data-host-url')).toBe('https://collect.example.com');
+    expect(scriptElement?.getAttribute('data-tag')).toBe('variant-b');
+    expect(scriptElement?.getAttribute('data-exclude-search')).toBe('true');
+    expect(scriptElement?.getAttribute('data-exclude-hash')).toBe('true');
+    expect(scriptElement?.getAttribute('data-do-not-track')).toBe('true');
+    expect(scriptElement?.getAttribute('data-distinct-id')).toBe('user-123');
+    expect(scriptElement?.getAttribute('data-fetch-credentials')).toBe('include');
+  });
+
+  it('does not add tracker option attributes by default', () => {
+    render(<UmamiAnalytics websiteId="test-id" />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    for (const name of [
+      'data-auto-pageview',
+      'data-performance',
+      'data-before-send',
+      'data-host-url',
+      'data-tag',
+      'data-exclude-search',
+      'data-exclude-hash',
+      'data-do-not-track',
+      'data-distinct-id',
+      'data-fetch-credentials',
+    ]) {
+      expect(scriptElement?.getAttribute(name)).toBeNull();
+    }
+    expect(getBeforeSendGlobal()).toBeUndefined();
+  });
+
+  it('registers beforeSend as a global and points data-before-send at it', () => {
+    const beforeSend = vi.fn((_type: string, payload: Record<string, unknown>) => ({
+      ...payload,
+      url: '/redacted',
+    }));
+
+    render(<UmamiAnalytics websiteId="test-id" beforeSend={beforeSend} />);
+
+    const scriptElement = document.querySelector('script[src="https://cloud.umami.is/script.js"]');
+    expect(scriptElement?.getAttribute('data-before-send')).toBe(UMAMI_BEFORE_SEND_GLOBAL);
+
+    const result = getBeforeSendGlobal()?.('event', { url: '/secret?token=1' });
+    expect(beforeSend).toHaveBeenCalledWith('event', { url: '/secret?token=1' });
+    expect(result).toEqual({ url: '/redacted' });
+  });
+
+  it('calls the latest beforeSend after a rerender', () => {
+    const first = vi.fn(() => null);
+    const second = vi.fn((_type: string, payload: Record<string, unknown>) => payload);
+
+    const { rerender } = render(<UmamiAnalytics websiteId="test-id" beforeSend={first} />);
+    rerender(<UmamiAnalytics websiteId="test-id" beforeSend={second} />);
+
+    getBeforeSendGlobal()?.('event', { name: 'signup' });
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith('event', { name: 'signup' });
+  });
+
+  it('replaces a stale beforeSend when remounted with an existing script', () => {
+    const first = vi.fn(() => null);
+    const second = vi.fn((_type: string, payload: Record<string, unknown>) => payload);
+
+    const { unmount } = render(<UmamiAnalytics websiteId="test-id" beforeSend={first} />);
+    unmount();
+    render(<UmamiAnalytics websiteId="test-id" beforeSend={second} />);
+
+    getBeforeSendGlobal()?.('event', { name: 'signup' });
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith('event', { name: 'signup' });
+  });
+
+  it('runs beforeSend in dry run mode and logs the payload it returns', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const beforeSend = vi.fn(async (_type: string, payload: Record<string, unknown>) => ({
+      ...payload,
+      data: { plan: 'pro' },
+    }));
+
+    render(<UmamiAnalytics websiteId="test-id" dryRun={true} beforeSend={beforeSend} />);
+    window.umami?.track('signup', { plan: 'free' });
+
+    expect(beforeSend).toHaveBeenCalledWith('event', {
+      website: 'test-id',
+      name: 'signup',
+      data: { plan: 'free' },
+    });
+    await vi.waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('UmamiAnalytics [DRY RUN]: Would send:', 'event', {
+        website: 'test-id',
+        name: 'signup',
+        data: { plan: 'pro' },
+      });
+    });
+  });
+
+  it('logs dropped payloads when beforeSend returns a falsy value in dry run mode', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    render(<UmamiAnalytics websiteId="test-id" dryRun={true} beforeSend={() => null} />);
+    window.umami?.identify('user-123');
+
+    await vi.waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'UmamiAnalytics [DRY RUN]: beforeSend dropped:',
+        'identify',
+        { website: 'test-id', id: 'user-123', data: undefined },
+      );
+    });
+    expect(consoleSpy).not.toHaveBeenCalledWith(
+      'UmamiAnalytics [DRY RUN]: Would identify user:',
+      'user-123',
+      undefined,
+    );
   });
 });

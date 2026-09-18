@@ -1,0 +1,8 @@
+# Single-package repo; examples/ are standalone apps, not workspace packages
+packages:
+  - .
+
+# pnpm 10+ reads build-script approvals from here instead of package.json's "pnpm" field
+allowBuilds:
+  '@biomejs/biome': true
+  esbuild: false

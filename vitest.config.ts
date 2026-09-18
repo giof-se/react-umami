@@ -5,6 +5,15 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'happy-dom',
+    // Tests assert on injected <script> elements; never fetch or run the real tracker
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          disableJavaScriptFileLoading: true,
+          handleDisabledFileLoadingAsSuccess: true,
+        },
+      },
+    },
     include: ['tests/**/*.test.{ts,tsx}'],
     globals: true,
     coverage: {
