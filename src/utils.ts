@@ -1,5 +1,6 @@
 // src/utils.ts
 
+import { debugWarn } from './debug';
 import type { UmamiEventData, UmamiTracker } from './types';
 
 /**
@@ -9,12 +10,12 @@ import type { UmamiEventData, UmamiTracker } from './types';
  */
 export const trackEvent = (eventName: string, eventData?: UmamiEventData): void => {
   if (typeof window === 'undefined') {
-    console.warn('trackEvent: Not in browser environment');
+    debugWarn('trackEvent: Not in browser environment');
     return;
   }
 
   if (!window.umami) {
-    console.warn('trackEvent: Umami not loaded yet');
+    debugWarn('trackEvent: Umami not loaded yet');
     return;
   }
 
@@ -28,12 +29,12 @@ export const trackEvent = (eventName: string, eventData?: UmamiEventData): void 
  */
 export const trackPageView = (path?: string, title?: string): void => {
   if (typeof window === 'undefined') {
-    console.warn('trackPageView: Not in browser environment');
+    debugWarn('trackPageView: Not in browser environment');
     return;
   }
 
   if (!window.umami) {
-    console.warn('trackPageView: Umami not loaded yet');
+    debugWarn('trackPageView: Umami not loaded yet');
     return;
   }
 
@@ -53,12 +54,12 @@ export const trackPageView = (path?: string, title?: string): void => {
 
 export const identify = (idOrData: string | object, data?: object): void => {
   if (typeof window === 'undefined') {
-    console.warn('identify: Not in browser environment');
+    debugWarn('identify: Not in browser environment');
     return;
   }
 
   if (!window.umami) {
-    console.warn('identify: Umami not loaded yet');
+    debugWarn('identify: Umami not loaded yet');
     return;
   }
 

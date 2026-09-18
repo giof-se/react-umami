@@ -216,7 +216,7 @@ You can also configure the component through props:
 | `distinctId` | `string` | `undefined` | Identify the visitor as soon as the tracker loads (`data-distinct-id`) |
 | `fetchCredentials` | `RequestCredentials` | `'omit'` | `credentials` mode for collect requests (`data-fetch-credentials`) |
 | `dryRun` | `boolean` | `false` | **🧪 Enable dry run mode** - no real events sent to Umami |
-| `debug` | `boolean` | `false` | **🔍 Enable debug logging** - detailed console output |
+| `debug` | `boolean` | `false` | **🔍 Enable debug logging** - detailed console output, including warnings from the tracking helpers |
 
 **Note**: The component checks multiple environment variable names for maximum compatibility across frameworks.
 
@@ -257,6 +257,37 @@ const beforeSend: UmamiBeforeSend = (type, payload) => {
 - Umami's `data-before-send` attribute takes the *name* of a global function, so the component registers yours as `window.__umamiBeforeSend` (exported as `UMAMI_BEFORE_SEND_GLOBAL`).
 - In dry run mode, the mock tracker runs `beforeSend` too and logs what would be sent or dropped.
 - **Next.js App Router**: functions can't be passed from a Server Component to a Client Component, so define `beforeSend` inside your `'use client'` wrapper rather than in `layout.tsx`.
+
+## 🔒 Consent
+
+Once Umami's tracker has loaded, it hooks into the browser's history API and sends a pageview (and Web Vitals, with `performance`) on every client-side navigation until the page reloads. Unmounting `<UmamiAnalytics>`, removing the `<script>` tag or deleting `window.umami` does **not** stop it.
+
+What does stop it: the tracker calls `beforeSend` before every send and drops the payload when it returns `null`. Use it as the consent gate:
+
+```tsx
+'use client';
+
+import { UmamiAnalytics, type UmamiBeforeSend } from '@giof/react-umami';
+import { getAnalyticsConsent, useAnalyticsConsent } from './consent'; // your consent store
+
+// Reads consent at send time - don't close over React state here
+const dropUnlessConsented: UmamiBeforeSend = (_type, payload) =>
+  getAnalyticsConsent() === true ? payload : null;
+
+export function Analytics() {
+  const consent = useAnalyticsConsent();
+
+  // Visitors who haven't consented never download the tracker
+  if (consent !== true) return null;
+
+  return <UmamiAnalytics websiteId="your-website-id" beforeSend={dropUnlessConsented} />;
+}
+```
+
+- **Revoked after load**: `Analytics` unmounts, but the gate stays registered and starts returning `null`, so pageviews, Web Vitals, `identify` and your own `trackEvent` calls are all dropped.
+- **Granted again on the same page**: the component remounts, finds the script already loaded and re-registers the gate; tracking resumes from the next send.
+- `dryRun` and `useUmami().updateConfig()` are **not** consent switches: `dryRun` is read once on mount, and `updateConfig` only affects that hook's own calls.
+- Umami also honours `localStorage.setItem('umami.disabled', '1')` as a per-browser opt-out, checked before every send.
 
 ## 🧪 Dry Run Mode
 
@@ -312,14 +343,7 @@ describe('Analytics Integration', () => {
 
 ### Privacy & Compliance
 
-```tsx
-// Respect user consent while maintaining functionality
-<UmamiAnalytics 
-  websiteId="your-website-id"
-  dryRun={!userConsent.analytics}
-  debug={!userConsent.analytics}
-/>
-```
+`dryRun` is read once, when the component mounts, so it can't act as a consent switch. For consent that can change while the page is open, see [Consent](#-consent).
 
 ### Why This Matters
 
@@ -365,6 +389,8 @@ const handleNavigation = (path: string) => {
   trackPageView(path, 'Custom Page Title');
 };
 ```
+
+`trackEvent`, `trackPageView` and `identify` silently do nothing when the tracker isn't loaded (not consented yet, blocked, or during SSR). Mount `<UmamiAnalytics debug>` to get a console warning for each skipped call.
 
 ### Advanced Hook Usage
 
@@ -427,7 +453,10 @@ Detailed console output for development and troubleshooting. See exactly what's 
 Built-in server-side rendering protection for Next.js, Remix, and other SSR frameworks. Includes Next.js App Router integration guide.
 
 ### ⚙️ **Runtime Configuration** 
-Override settings dynamically with the `useUmami` hook. Perfect for consent management.
+Override settings dynamically with the `useUmami` hook.
+
+### 🔒 **Consent Gate**
+`beforeSend` drops every payload once consent is revoked - including pageviews from a tracker that's already loaded. See [Consent](#-consent).
 
 ### 🎯 **Event Tracking Helpers** 
 Simple `trackEvent()` and `trackPageView()` utilities for custom analytics.
@@ -443,9 +472,6 @@ Complete type definitions included. IntelliSense and type safety out of the box.
 
 ### 📦 **Zero Dependencies** 
 No external dependencies. Lightweight and fast.
-
-### 🧹 **Auto Cleanup** 
-Automatic script removal on component unmount. No memory leaks.
 
 ### 🚫 **Duplicate Prevention** 
 Smart script injection prevents conflicts and duplicate loading.
