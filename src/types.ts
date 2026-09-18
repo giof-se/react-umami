@@ -50,6 +50,21 @@ export type UmamiCustomEventFunction = (
   props: UmamiTrackedProperties,
 ) => UmamiEventProperties | UmamiTrackedProperties;
 
+/**
+ * Payload the tracker is about to send to the collect endpoint
+ */
+export type UmamiPayload = Record<string, unknown>;
+
+/**
+ * Called by the tracker before every send. Return the (optionally modified) payload
+ * to send it, or a falsy value to drop it.
+ * @param type - Payload type, e.g. `'event'`, `'identify'` or `'performance'`
+ */
+export type UmamiBeforeSend = (
+  type: string,
+  payload: UmamiPayload,
+) => UmamiPayload | null | undefined | Promise<UmamiPayload | null | undefined>;
+
 export interface UmamiTracker {
   track: {
     /**

@@ -58,6 +58,7 @@ For Next.js 13+ with App Router, you need to create a client wrapper component t
 'use client';
 
 import dynamic from 'next/dynamic';
+import type { UmamiAnalyticsProps } from '@giof/react-umami';
 
 // Dynamically import UmamiAnalytics with SSR disabled
 const UmamiAnalytics = dynamic(
@@ -68,17 +69,8 @@ const UmamiAnalytics = dynamic(
   }
 );
 
-interface ClientUmamiAnalyticsProps {
-  websiteId?: string;
-  src?: string;
-  domains?: string[];
-  tag?: string;
-  autoTrack?: boolean;
-  dryRun?: boolean;
-  debug?: boolean;
-}
-
-export default function ClientUmamiAnalytics(props: ClientUmamiAnalyticsProps) {
+// beforeSend is a function, so it can't come from a Server Component - define it here if needed
+export default function ClientUmamiAnalytics(props: Omit<UmamiAnalyticsProps, 'beforeSend'>) {
   return <UmamiAnalytics {...props} />;
 }
 ```
@@ -214,10 +206,57 @@ You can also configure the component through props:
 | `domains` | `string[]` | `undefined` | Restrict tracking to specific domains |
 | `tag` | `string` | `process.env.UMAMI_TAG` | Tag events so multiple properties can share one website ID |
 | `autoTrack` | `boolean` | `true` | Whether to automatically track page views |
+| `autoPageview` | `boolean` | `true` | Send the initial page view on load (`data-auto-pageview`) |
+| `performance` | `boolean` | `false` | Collect Core Web Vitals (`data-performance`) - see [Core Web Vitals](#-core-web-vitals) |
+| `beforeSend` | `(type, payload) => payload \| null \| Promise<...>` | `undefined` | Inspect, modify or drop every payload before it is sent - see [Pre-send hook](#-pre-send-hook-beforesend) |
+| `hostUrl` | `string` | `undefined` | Send data to a different Umami host (`data-host-url`) |
+| `excludeSearch` | `boolean` | `false` | Strip query strings from tracked URLs (`data-exclude-search`) |
+| `excludeHash` | `boolean` | `false` | Strip hashes from tracked URLs (`data-exclude-hash`) |
+| `doNotTrack` | `boolean` | `false` | Respect the browser's Do Not Track setting (`data-do-not-track`) |
+| `distinctId` | `string` | `undefined` | Identify the visitor as soon as the tracker loads (`data-distinct-id`) |
+| `fetchCredentials` | `RequestCredentials` | `'omit'` | `credentials` mode for collect requests (`data-fetch-credentials`) |
 | `dryRun` | `boolean` | `false` | **🧪 Enable dry run mode** - no real events sent to Umami |
 | `debug` | `boolean` | `false` | **🔍 Enable debug logging** - detailed console output |
 
 **Note**: The component checks multiple environment variable names for maximum compatibility across frameworks.
+
+**Note**: Props are read once, when the component mounts. Changing them afterwards has no effect, except `beforeSend` - the latest function passed is always the one called.
+
+Each tracker option maps to one of Umami's [tracker configuration](https://umami.is/docs/tracker-configuration) attributes. Older self-hosted Umami versions ignore attributes they don't support.
+
+## 📈 Core Web Vitals
+
+```tsx
+<UmamiAnalytics websiteId="your-website-id" performance />
+```
+
+The tracker reports TTFB, FCP, LCP, CLS and INP as `performance` payloads. This needs an Umami version whose tracker supports `data-performance`; older versions ignore it.
+
+## 🪝 Pre-send hook (`beforeSend`)
+
+`beforeSend` is called with the payload type (`'event'`, `'identify'`, `'performance'`, ...) and the payload before anything is sent. Return the payload (modified or not) to send it, or `null` to drop it. It may be async.
+
+```tsx
+import { UmamiAnalytics, type UmamiBeforeSend } from '@giof/react-umami';
+
+const beforeSend: UmamiBeforeSend = (type, payload) => {
+  // Drop events from internal pages
+  if (typeof payload.url === 'string' && payload.url.startsWith('/admin')) return null;
+
+  // Strip tokens from URLs
+  if (typeof payload.url === 'string') {
+    return { ...payload, url: payload.url.replace(/token=[^&]+/, 'token=redacted') };
+  }
+  return payload;
+};
+
+<UmamiAnalytics websiteId="your-website-id" beforeSend={beforeSend} />;
+```
+
+- Pass `beforeSend` on the first render; the hook is only wired up if it's present when the component mounts.
+- Umami's `data-before-send` attribute takes the *name* of a global function, so the component registers yours as `window.__umamiBeforeSend` (exported as `UMAMI_BEFORE_SEND_GLOBAL`).
+- In dry run mode, the mock tracker runs `beforeSend` too and logs what would be sent or dropped.
+- **Next.js App Router**: functions can't be passed from a Server Component to a Client Component, so define `beforeSend` inside your `'use client'` wrapper rather than in `layout.tsx`.
 
 ## 🧪 Dry Run Mode
 
