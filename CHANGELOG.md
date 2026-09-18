@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.9.0
+
+[compare changes](https://github.com/giof-se/react-umami/compare/v2.8.0...v2.9.0)
+
+### 🩹 Fixes
+
+- feat: expose Umami tracker options including Web Vitals and beforeSend ([8c66259](https://github.com/giof-se/react-umami/commit/8c66259134d3a7d3061f7079e44abc178dbab7ed))
+- ci: upgrade pnpm from 8 to 9 in all workflows ([0f3e616](https://github.com/giof-se/react-umami/commit/0f3e61675bb2a2a3f77c3e15f8eb2dc363091bd0))
+- Merge pull request #4 from giof-se/chore/pnpm-9 ([2798e5d](https://github.com/giof-se/react-umami/commit/2798e5dd964d59adc351cc93eb183742a70701f5))
+- release: v2.8.1 ([bda0db8](https://github.com/giof-se/react-umami/commit/bda0db8bcfffc630595d53ea729a4d65f3b40aca))
+- Merge branch 'main' into feat/tracker-options ([540121c](https://github.com/giof-se/react-umami/commit/540121c2cc1b2f294b91fe5ad96aeaf34b02b205))
+- Merge pull request #3 from giof-se/feat/tracker-options ([65d8ed4](https://github.com/giof-se/react-umami/commit/65d8ed49682841654ffe4198702823c5f22fae06))
+
+### ❤️ Contributors
+
+- Arnstein Snyen Marjala ([@arnsteinsm](https://github.com/arnsteinsm))
+
 ## v2.8.1
 
 [compare changes](https://github.com/giof-se/react-umami/compare/v2.7.2...v2.8.1)
